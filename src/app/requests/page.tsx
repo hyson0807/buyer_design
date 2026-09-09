@@ -28,7 +28,7 @@ export default function RequestsPage() {
         <Empty
           title="Sign in to see your requests"
           body="Your sample requests and brand conversations live here."
-          action={<Button onClick={() => openAuth('signin')}>Sign in</Button>}
+          action={<Button onClick={() => openAuth()}>Sign in</Button>}
         />
       </Shell>
     );

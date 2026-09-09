@@ -36,8 +36,12 @@ export type AppState = {
   /**
    * 인증 모달 개폐. pendingIntent 와 같은 흐름이라 같은 컨테이너에 둔다 —
    * 별도 컨텍스트를 만들면 Providers 중첩만 늘고 두 값이 따로 놀 여지가 생긴다.
+   *
+   * ⚠️ 한때 'signin' | 'signup' 로 어느 화면을 열지 호출부가 정했는데, 그게 틀린
+   *    모델이었다 — 호출부는 이 사람이 기존 유저인지 알 수 없다. 지금은 모달이 항상
+   *    이메일부터 물어 스스로 갈래를 정하므로 여는 쪽은 열지 말지만 정한다.
    */
-  authOpen: 'signin' | 'signup' | null;
+  authOpen: boolean;
   /** ⚠️ localStorage 를 읽기 전에는 false. 이 값으로 렌더를 가려 hydration mismatch 를 막는다. */
   hydrated: boolean;
 };
@@ -47,7 +51,7 @@ const EMPTY: AppState = {
   requests: [],
   threads: [],
   pendingIntent: null,
-  authOpen: null,
+  authOpen: false,
   hydrated: false,
 };
 
@@ -58,7 +62,7 @@ type Action =
   | { type: 'SIGN_OUT' }
   | { type: 'SET_PENDING_INTENT'; intent: PendingIntent }
   | { type: 'CLEAR_PENDING_INTENT' }
-  | { type: 'OPEN_AUTH'; mode: 'signin' | 'signup' }
+  | { type: 'OPEN_AUTH' }
   | { type: 'CLOSE_AUTH' }
   | { type: 'CREATE_REQUEST'; request: SampleRequest; opening: ChatMessage[] }
   | { type: 'ADD_MESSAGE'; message: ChatMessage }
@@ -73,7 +77,7 @@ function reducer(state: AppState, action: Action): AppState {
     case 'HYDRATED':
       return { ...state, hydrated: true };
     case 'SIGN_IN':
-      return { ...state, buyer: action.buyer, authOpen: null };
+      return { ...state, buyer: action.buyer, authOpen: false };
     case 'SIGN_OUT':
       // 요청·스레드는 남긴다 — 데모에서 다시 로그인하면 이력이 그대로 보이는 편이 낫다.
       return { ...state, buyer: null, pendingIntent: null };
@@ -82,11 +86,11 @@ function reducer(state: AppState, action: Action): AppState {
     case 'CLEAR_PENDING_INTENT':
       return { ...state, pendingIntent: null };
     case 'OPEN_AUTH':
-      return { ...state, authOpen: action.mode };
+      return { ...state, authOpen: true };
     case 'CLOSE_AUTH':
       // 모달을 그냥 닫으면 대기 중이던 의도도 버린다 — 안 그러면 나중에 아무 관계 없는
       // 로그인에서 옛 브랜드의 요청 폼이 튀어나온다.
-      return { ...state, authOpen: null, pendingIntent: null };
+      return { ...state, authOpen: false, pendingIntent: null };
     case 'CREATE_REQUEST':
       return {
         ...state,
@@ -145,7 +149,7 @@ export type Actions = {
   signOut: () => void;
   setPendingIntent: (intent: PendingIntent) => void;
   clearPendingIntent: () => void;
-  openAuth: (mode: 'signin' | 'signup') => void;
+  openAuth: () => void;
   closeAuth: () => void;
   createRequest: (request: SampleRequest, opening: ChatMessage[]) => void;
   addMessage: (message: ChatMessage) => void;
@@ -160,7 +164,7 @@ export function buildActions(dispatch: Dispatch<Action>): Actions {
     signOut: () => dispatch({ type: 'SIGN_OUT' }),
     setPendingIntent: (intent) => dispatch({ type: 'SET_PENDING_INTENT', intent }),
     clearPendingIntent: () => dispatch({ type: 'CLEAR_PENDING_INTENT' }),
-    openAuth: (mode) => dispatch({ type: 'OPEN_AUTH', mode }),
+    openAuth: () => dispatch({ type: 'OPEN_AUTH' }),
     closeAuth: () => dispatch({ type: 'CLOSE_AUTH' }),
     createRequest: (request, opening) => dispatch({ type: 'CREATE_REQUEST', request, opening }),
     addMessage: (message) => dispatch({ type: 'ADD_MESSAGE', message }),

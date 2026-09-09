@@ -53,7 +53,7 @@ export function Header() {
               )}
             </Link>
           ) : (
-            <Button size="sm" onClick={() => openAuth('signin')} className="ml-2">
+            <Button size="sm" onClick={() => openAuth()} className="ml-2">
               Sign in
             </Button>
           )}

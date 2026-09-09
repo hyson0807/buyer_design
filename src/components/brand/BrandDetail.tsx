@@ -45,7 +45,7 @@ export function BrandDetail({ brand }: { brand: BuyerBrand }) {
   const requestSamples = (productIds: string[]) => {
     if (!buyer) {
       setPendingIntent({ brandId: brand.id, productIds });
-      openAuth('signup');
+      openAuth();
       return;
     }
     setSelected(productIds);

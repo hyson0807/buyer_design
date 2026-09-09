@@ -7,7 +7,7 @@ import { Field } from '@/components/ui/Field';
 import { Modal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/Toast';
 import { CategoryFilter } from '@/components/brand/CategoryFilter';
-import { COUNTRIES } from '@/lib/countries';
+import { COUNTRIES, DEFAULT_COUNTRY } from '@/lib/countries';
 import type { CategoryKey } from '@/lib/categories';
 import { useAppActions, useAppState } from '@/lib/store';
 import type { AnnualVolume, BusinessType, ContactChannel } from '@/lib/types';
@@ -41,7 +41,7 @@ export function AuthModalMount() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [country, setCountry] = useState<string>('United States');
+  const [country, setCountry] = useState<string>(DEFAULT_COUNTRY.name);
   const [businessType, setBusinessType] = useState<BusinessType>('Retailer');
   const [annualVolume, setAnnualVolume] = useState<AnnualVolume>('$10K – $50K');
   const [website, setWebsite] = useState('');
@@ -244,7 +244,7 @@ export function AuthModalMount() {
                 onChange={(e) => setCountry(e.target.value)}
               >
                 {COUNTRIES.map((c) => (
-                  <option key={c}>{c}</option>
+                  <option key={c.code}>{c.name}</option>
                 ))}
               </select>
             </Field>

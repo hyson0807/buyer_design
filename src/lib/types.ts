@@ -116,12 +116,33 @@ export type SampleRequestStatus = 'submitted' | 'accepted' | 'shipped';
 
 export type SampleRequestItem = { productId: string; qty: number };
 
+/**
+ * 배송지. klow_web 결제 폼(`checkout/page.tsx`)과 **같은 필드 구성**이다 —
+ * 실서버에서는 이 값이 그대로 EFS 송장으로 나가므로, 지금부터 모양을 맞춰 두면
+ * klow_buyer 이식 때 폼을 다시 짜지 않는다.
+ *
+ * @PORT(schema): 실서버 주문 payload 는 countryCode + phone(국가번호 포함 전체) 형태다.
+ */
+export type ShippingAddress = {
+  recipientName: string;
+  /** 표시용 국가명. */
+  country: string;
+  countryCode: string;
+  /** 국가번호를 뺀 로컬 번호. 전체 번호는 `${dial}${phoneLocal}`. */
+  phoneLocal: string;
+  city: string;
+  postalCode: string;
+  line1: string;
+  line2: string;
+  /** 미국 배송 전용 — EFS 가 "City, State" 를 요구한다. */
+  state: string;
+};
+
 export type SampleRequest = {
   id: string;
   brandId: string;
   items: SampleRequestItem[];
-  shipToCountry: string;
-  address: string;
+  shipTo: ShippingAddress;
   message: string;
   coversShipping: boolean;
   status: SampleRequestStatus;

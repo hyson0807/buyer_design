@@ -361,11 +361,23 @@ export function SampleRequestModal({
             />
             I&apos;ll cover courier costs
           </label>
+        </section>
 
+        {/*
+          ⚠️ 제출 버튼은 모달 하단에 **고정**한다. 이 폼은 제품·연락처·주소를 합쳐
+             한 화면을 훌쩍 넘기므로, 흐름에 두면 CTA 가 스크롤 밖으로 밀려
+             "다 채웠는데 보낼 방법이 없다"가 된다.
+          ⚠️ `-mx-7 -mb-7 + px-7 pb-7` 은 Modal 의 p-7 을 상쇄해 바닥까지 붙이는 것이다
+               (BusinessDetailsStep 과 같은 규칙).
+          ⚠️ `-bottom-7` 도 같은 28px 다. sticky 는 스크롤 컨테이너의 **content box**
+             바닥에 붙으므로 bottom-0 이면 패딩만큼(28px) 떠서, 그 틈으로 뒤 내용이
+             비치고 흰 띠가 남는다(실측: 푸터 하단 905px vs 스크롤 하단 933px).
+        */}
+        <div className="sticky -bottom-7 -mx-7 -mb-7 border-t border-line bg-surface px-7 pb-7 pt-4">
           <Button type="submit" fullWidth disabled={products.length === 0}>
             Send request
           </Button>
-        </section>
+        </div>
       </form>
     </Modal>
   );

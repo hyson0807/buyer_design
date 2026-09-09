@@ -6,23 +6,10 @@ import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
 import { Modal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/Toast';
-import { CategoryFilter } from '@/components/brand/CategoryFilter';
-import { COUNTRIES, DEFAULT_COUNTRY } from '@/lib/countries';
+import { BusinessDetailsStep, type BusinessDetails } from '@/components/auth/BusinessDetailsStep';
 import { DEMO_ACCOUNT_EMAIL, findRegisteredBuyer } from '@/lib/mock-buyers';
-import type { CategoryKey } from '@/lib/categories';
 import { useAppActions, useAppState } from '@/lib/store';
-import type { AnnualVolume, Buyer, BusinessType, ContactChannel } from '@/lib/types';
-
-const BUSINESS_TYPES: BusinessType[] = [
-  'Retailer', 'E-commerce', 'Distributor', 'Importer',
-  'Wholesaler', 'Salon & Spa', 'Sourcing agency', 'Other',
-];
-
-const VOLUMES: AnnualVolume[] = [
-  'Under $10K', '$10K – $50K', '$50K – $200K', '$200K – $1M', '$1M+',
-];
-
-const CHANNELS: ContactChannel[] = ['Email', 'WhatsApp', 'KakaoTalk'];
+import type { Buyer } from '@/lib/types';
 
 /**
  * 로그인·가입을 한 모달에서 처리한다. 별도 라우트로 빼면 브랜드 상세에서
@@ -52,15 +39,6 @@ export function AuthModalMount() {
 
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [companyName, setCompanyName] = useState('');
-  const [country, setCountry] = useState<string>(DEFAULT_COUNTRY.name);
-  const [businessType, setBusinessType] = useState<BusinessType>('Retailer');
-  const [annualVolume, setAnnualVolume] = useState<AnnualVolume>('$10K – $50K');
-  const [website, setWebsite] = useState('');
-  const [categories, setCategories] = useState<CategoryKey[]>([]);
-  const [contactChannel, setContactChannel] = useState<ContactChannel>('Email');
-  const [contactHandle, setContactHandle] = useState('');
-  const [agreed, setAgreed] = useState(false);
 
   // 모달이 닫힐 때가 아니라 열릴 때 초기화한다 — 닫히면 언마운트되지 않고 null 만
   // 반환하므로, 닫기 시점에 리셋하면 사라지는 화면이 잠깐 빈 폼으로 깜빡인다.
@@ -69,7 +47,6 @@ export function AuthModalMount() {
     setStep('email');
     setKnown(null);
     setPassword('');
-    setAgreed(false);
   }, [authOpen]);
 
   if (!authOpen) return null;
@@ -97,19 +74,19 @@ export function AuthModalMount() {
     if (demo) finish(demo);
   };
 
-  const createAccount = () => {
+  const createAccount = (v: BusinessDetails) => {
     finish({
       id: `buyer_${Date.now()}`,
       fullName: fullName.trim() || 'Buyer',
       email: email.trim(),
-      companyName: companyName.trim(),
-      country,
-      businessType,
-      annualVolume,
-      website: website.trim() || undefined,
-      categories,
-      contactChannel,
-      contactHandle: contactHandle.trim() || undefined,
+      companyName: v.companyName,
+      country: v.country,
+      businessType: v.businessType,
+      annualVolume: v.annualVolume,
+      website: v.website || undefined,
+      categories: v.categories,
+      contactChannel: v.contactChannel,
+      contactHandle: v.contactHandle || undefined,
       createdAt: new Date().toISOString(),
     });
   };
@@ -275,140 +252,11 @@ export function AuthModalMount() {
         </>
       )}
 
-      {/* ── 3단계: 사업자 정보 ────────────────────────────────────────────── */}
+      {/* ── 3단계: 사업자 정보 — 입력할수록 다음 묶음이 열린다(BusinessDetailsStep). */}
       {step === 'business' && (
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            createAccount();
-          }}
-        >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Company name" required>
-              <input
-                required
-                autoFocus
-                className="form-input"
-                placeholder="Sensa Retail"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-              />
-            </Field>
-            <Field label="Country / region" required>
-              <select
-                className="form-select"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-              >
-                {COUNTRIES.map((c) => (
-                  <option key={c.code}>{c.name}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Business type" required>
-              <select
-                className="form-select"
-                value={businessType}
-                onChange={(e) => setBusinessType(e.target.value as BusinessType)}
-              >
-                {BUSINESS_TYPES.map((t) => (
-                  <option key={t}>{t}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Annual purchase volume" required>
-              <select
-                className="form-select"
-                value={annualVolume}
-                onChange={(e) => setAnnualVolume(e.target.value as AnnualVolume)}
-              >
-                {VOLUMES.map((v) => (
-                  <option key={v}>{v}</option>
-                ))}
-              </select>
-            </Field>
-          </div>
-
-          <Field label="Company website" hint="Optional — helps brands verify you faster.">
-            <input
-              type="url"
-              className="form-input"
-              placeholder="https://"
-              value={website}
-              onChange={(e) => setWebsite(e.target.value)}
-            />
-          </Field>
-
-          <div>
-            <span className="mb-1 block text-[13px] font-semibold text-ink">
-              Categories of interest
-            </span>
-            {/* 홈 필터와 같은 컴포넌트를 다중 선택 모드로 재사용한다. */}
-            <CategoryFilter
-              selected={categories}
-              includeAll={false}
-              onSelect={(key) =>
-                key &&
-                setCategories((prev) =>
-                  prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
-                )
-              }
-            />
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-[160px_1fr]">
-            <Field label="Preferred contact">
-              <select
-                className="form-select"
-                value={contactChannel}
-                onChange={(e) => setContactChannel(e.target.value as ContactChannel)}
-              >
-                {CHANNELS.map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Handle or number" hint="Optional">
-              <input
-                className="form-input"
-                placeholder="+1 555 0100"
-                value={contactHandle}
-                onChange={(e) => setContactHandle(e.target.value)}
-              />
-            </Field>
-          </div>
-
-          <label className="flex cursor-pointer items-start gap-2.5 text-[13px] text-sub">
-            <input
-              type="checkbox"
-              checked={agreed}
-              onChange={(e) => setAgreed(e.target.checked)}
-              className="mt-0.5 h-4 w-4 shrink-0 accent-[#7C3AED]"
-            />
-            <span>
-              I agree to the{' '}
-              <a href="#" className="text-ink underline underline-offset-2">
-                Terms of Service
-              </a>{' '}
-              and{' '}
-              <a href="#" className="text-ink underline underline-offset-2">
-                Privacy Policy
-              </a>
-              .
-            </span>
-          </label>
-
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={() => setStep('signup')}>
-              Back
-            </Button>
-            <Button type="submit" fullWidth disabled={!agreed}>
-              Create account
-            </Button>
-          </div>
-        </form>
+        <BusinessDetailsStep onBack={() => setStep('signup')} onSubmit={createAccount} />
       )}
+
     </Modal>
   );
 }

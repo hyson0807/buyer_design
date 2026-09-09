@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -10,6 +10,7 @@ import { SampleRequestModal } from '@/components/request/SampleRequestModal';
 import { brandIntro, parseBrandTags } from '@/lib/brand-tags';
 import { categoryLabel } from '@/lib/categories';
 import { getProducts } from '@/lib/mock-brands';
+import { storefrontUrl } from '@/lib/klow-web';
 import { useAppActions, useAppState, useBuyer } from '@/lib/store';
 import type { BuyerBrand } from '@/lib/types';
 
@@ -24,6 +25,7 @@ export function BrandDetail({ brand }: { brand: BuyerBrand }) {
 
   // ⚠️ tagline 은 태그 마커 문자열이다. 소개문은 description.
   const tags = parseBrandTags(brand.tagline);
+  const storefront = storefrontUrl(brand.slug);
 
   /**
    * 가입/로그인을 마치면 보관해 둔 의도를 소비해 요청 폼을 그대로 이어 연다.
@@ -108,9 +110,22 @@ export function BrandDetail({ brand }: { brand: BuyerBrand }) {
             <Fact label="Exports to" value={brand.exportMarkets.join(', ')} />
           </dl>
 
-          <Button className="mt-8" onClick={() => requestSamples(selected)}>
-            Request samples
-          </Button>
+          <div className="mt-8 flex flex-wrap items-center gap-2">
+            <Button onClick={() => requestSamples(selected)}>Request samples</Button>
+            {/* 보조 액션 — 소매 화면(klow_web 브랜드관)에서 실제 판매 페이지를 확인한다.
+                ⚠️ 새 탭으로 연다. 같은 탭이면 골라 둔 제품 선택이 날아간다. */}
+            {storefront && (
+              <a
+                href={storefront}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-[10px] border border-line bg-surface px-5 text-[15px] font-semibold text-ink transition-all hover:border-ink/40 active:scale-[0.99]"
+              >
+                View storefront
+                <ArrowUpRight className="h-4 w-4" strokeWidth={2.25} />
+              </a>
+            )}
+          </div>
           <p className="mt-2.5 text-[12.5px] text-mute">
             Free samples, shipped from Korea. The brand replies in chat.
           </p>
@@ -118,14 +133,21 @@ export function BrandDetail({ brand }: { brand: BuyerBrand }) {
       </div>
 
       <section className="mt-20">
-        <h2 className="font-display text-[22px] font-semibold tracking-[-0.02em]">
-          Products <span className="font-normal tabular-nums text-mute">{products.length}</span>
-        </h2>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 className="font-display text-[22px] font-semibold tracking-[-0.02em]">
+            Products <span className="font-normal tabular-nums text-mute">{products.length}</span>
+          </h2>
+          {/* 카드가 두 가지 일을 하므로(선택 / 상세 열기) 한 줄로 알려 준다. */}
+          <p className="text-[12.5px] text-mute">
+            Tick to add to your sample request · click a product to view it on KLOW
+          </p>
+        </div>
         <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
           {products.map((p) => (
             <ProductCard
               key={p.id}
               product={p}
+              brandSlug={brand.slug}
               accent={brand.accentColor}
               selected={selected.includes(p.id)}
               onToggle={() =>

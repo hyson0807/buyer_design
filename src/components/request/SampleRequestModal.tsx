@@ -37,6 +37,7 @@ export function SampleRequestModal({
   const [qtyById, setQtyById] = useState<Record<string, number>>({});
 
   const [recipientName, setRecipientName] = useState('');
+  const [email, setEmail] = useState('');
   const [countryName, setCountryName] = useState(DEFAULT_COUNTRY.name);
   const [phoneLocal, setPhoneLocal] = useState('');
   const [city, setCity] = useState('');
@@ -52,7 +53,10 @@ export function SampleRequestModal({
     if (!open) return;
     setIds(productIds);
     if (buyer) {
+      // 프리필만 하고 잠그지 않는다 — 구매 담당자가 가입하고 물류 담당자 주소로 받는
+      // 경우가 흔해서, 수취인 정보는 프로필과 달라질 수 있다.
       setRecipientName((prev) => prev || buyer.fullName);
+      setEmail((prev) => prev || buyer.email);
       setCountryName((prev) => (prev === DEFAULT_COUNTRY.name ? buyer.country : prev));
     }
   }, [open, productIds, buyer]);
@@ -70,6 +74,7 @@ export function SampleRequestModal({
   const submit = () => {
     const shipTo: ShippingAddress = {
       recipientName: recipientName.trim(),
+      email: email.trim(),
       country: country.name,
       countryCode: country.code,
       phoneLocal: phoneLocal.trim(),
@@ -205,18 +210,38 @@ export function SampleRequestModal({
         */}
         <section className="space-y-4 border-t border-line pt-6">
           <h3 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-mute">
-            Shipping address
+            Contact
           </h3>
 
-          <Field label="Recipient name" required>
-            <input
-              required
-              className="form-input"
-              placeholder="Alex Moreau"
-              value={recipientName}
-              onChange={(e) => setRecipientName(e.target.value)}
-            />
-          </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Recipient name" required>
+              <input
+                required
+                className="form-input"
+                placeholder="Alex Moreau"
+                value={recipientName}
+                onChange={(e) => setRecipientName(e.target.value)}
+              />
+            </Field>
+            <Field label="Email" required hint="Where the brand sends tracking.">
+              <input
+                required
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                className="form-input"
+                placeholder="you@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Field>
+          </div>
+        </section>
+
+        <section className="space-y-4 border-t border-line pt-6">
+          <h3 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-mute">
+            Shipping address
+          </h3>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Country" required>

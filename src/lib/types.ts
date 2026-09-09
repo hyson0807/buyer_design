@@ -125,6 +125,12 @@ export type SampleRequestItem = { productId: string; qty: number };
  */
 export type ShippingAddress = {
   recipientName: string;
+  /**
+   * 수취인 이메일. 가입 이메일과 **같지 않을 수 있다** — 구매 담당자가 가입하고
+   * 물류 담당자 주소로 받는 경우가 흔하다. 그래서 프로필에서 프리필하되 편집 가능하다.
+   * 실서버에서는 EFS 송장의 recipientEmail 로 나간다.
+   */
+  email: string;
   /** 표시용 국가명. */
   country: string;
   countryCode: string;

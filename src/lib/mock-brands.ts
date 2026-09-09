@@ -120,9 +120,13 @@ export const MOCK_BRANDS: BuyerBrand[] = SEEDS.map((s, i) => ({
  * 한 페이지 안에서 커버와 제품 카드에 똑같은 사진이 두 번 뜨는 게 눈에 띈다.
  */
 function productImageId(brandIdx: number, prodIdx: number): string {
+  const pool = PRODUCT_IDS.length;
   const hero = brandIdx % HERO_IDS.length;
-  let i = (brandIdx * 3 + prodIdx) % PRODUCT_IDS.length;
-  if (i === hero) i = (i + 1) % PRODUCT_IDS.length;
+  // ⚠️ 충돌 시 i+1 로 밀면 **다음 제품과 겹친다**(실제로 한 브랜드에서 제품 두 개가
+  //    같은 사진이 됐다). 히어로를 뺀 pool-1 개 안에서 자리를 잡은 뒤 히어로 자리만
+  //    건너뛰어, 제품 인덱스 → 사진이 단사(injective)가 되게 한다.
+  let i = (brandIdx * 3 + prodIdx) % (pool - 1);
+  if (i >= hero) i += 1;
   return PRODUCT_IDS[i];
 }
 

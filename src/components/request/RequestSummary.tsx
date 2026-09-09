@@ -111,6 +111,7 @@ function formatAddress(a: ShippingAddress): string {
   const cityLine = [a.city, a.state].filter(Boolean).join(', ');
   return [
     a.recipientName,
+    a.email,
     [a.line1, a.line2].filter(Boolean).join(', '),
     [cityLine, a.postalCode].filter(Boolean).join(' '),
     a.country,

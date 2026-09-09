@@ -1,0 +1,30 @@
+{
+  "name": "buyer_design",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3003",
+    "build": "next build",
+    "start": "next start -p 3003",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "check:images": "bash scripts/check-images.sh"
+  },
+  "dependencies": {
+    "lucide-react": "^0.424.0",
+    "next": "^14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.35",
+    "postcss": "^8.4.0",
+    "tailwindcss": "3.4.7",
+    "typescript": "^5.5.0"
+  }
+}

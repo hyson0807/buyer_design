@@ -1,0 +1,119 @@
+/* 영문 UI 라 Manrope(display) + Inter(body) 가 정본이고, Pretendard 는 폴백 체인에만 둔다
+   — 브랜드명에 한글(예: 아누아)이 섞여 나오는 경우가 있다. */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* 뉴트럴 베이스 + KLOW 보라 액센트.
+     브랜드 이미지가 화면의 주인공이므로 UI 색은 무채색으로 물러나고,
+     보라는 딱 네 곳에만 나온다: 워드마크 / 주 CTA / 활성·선택 상태 / 포커스링. */
+  :root {
+    --c-bg: 250 250 249; /* #FAFAF9 페이지 바닥 */
+    --c-surface: 255 255 255; /* 카드·모달·패널 */
+    --c-ink: 24 24 27; /* #18181B 제목·본문 */
+    --c-sub: 113 113 122; /* #71717A 보조 텍스트 (4.63:1 — AA 통과) */
+    --c-mute: 161 161 170; /* #A1A1AA 플레이스홀더·비활성 */
+    --c-line: 228 228 231; /* #E4E4E7 구분선 */
+    --c-field: 244 244 245; /* 인풋 배경 + 이미지 로딩 바닥 */
+    --c-accent: 143 92 255; /* #8F5CFF KLOW 시그니처 — 틴트/테두리/포커스링/상태점 */
+    --c-accent-strong: 124 58 237; /* #7C3AED 흰 글씨 얹는 버튼 + 링크 텍스트 (AA 통과) */
+    --c-accent-pale: 243 238 255;
+    --c-ok: 22 138 74;
+    --c-danger: 220 38 38;
+  }
+
+  html,
+  body {
+    background: rgb(var(--c-bg));
+    color: rgb(var(--c-ink));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: Inter, 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+      system-ui, sans-serif;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+  }
+
+  /* 16px 는 iOS Safari 가 입력 포커스 시 화면을 확대하지 않는 최소값 — klow_brand 관례. */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  ::selection {
+    background: rgb(var(--c-accent) / 0.22);
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  /* 입력 프리미티브를 컴포넌트 파일로 만들지 않고 클래스로 두는 것도 klow_brand 관례다.
+     <Field label><input className="form-input" /></Field> 조합이 파일 2개보다 싸다. */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    @apply block w-full rounded-[10px] border border-line bg-surface px-3.5 text-[15px] text-ink
+      placeholder:text-mute focus:outline-none focus:border-ink/50;
+  }
+
+  .form-input,
+  .form-select {
+    @apply h-11;
+  }
+
+  .form-textarea {
+    @apply min-h-[104px] py-3 leading-relaxed;
+  }
+
+  .form-input:focus,
+  .form-select:focus,
+  .form-textarea:focus {
+    box-shadow: 0 0 0 3px rgb(var(--c-accent) / 0.18);
+  }
+
+  .form-select {
+    /* 기본 화살표를 지우고 같은 잉크색 chevron 을 그린다 — 브라우저별 위젯 편차 제거. */
+    @apply appearance-none bg-no-repeat pr-10;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2371717A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 0.875rem center;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* KLOW 시그니처 그라데이션. 워드마크 **한 곳에만** 쓴다 —
+   다른 곳에 번지는 순간 뉴트럴 베이스라는 전제가 무너진다. */
+.klow-mark {
+  background: linear-gradient(135deg, #fba5d5 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}

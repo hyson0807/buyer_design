@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
 import { CategoryFilter } from '@/components/brand/CategoryFilter';
 import { COUNTRIES } from '@/lib/countries';
+import { normalizeWebsite } from '@/lib/format';
 import type { CategoryKey } from '@/lib/categories';
 import { cn } from '@/lib/utils';
 import type { AnnualVolume, BusinessType, ContactChannel } from '@/lib/types';
@@ -75,7 +76,7 @@ export function BusinessDetailsStep({
           country,
           businessType: businessType as BusinessType,
           annualVolume: annualVolume as AnnualVolume,
-          website: website.trim(),
+          website: normalizeWebsite(website),
           categories,
           contactChannel,
           contactHandle: contactHandle.trim(),
@@ -151,9 +152,11 @@ export function BusinessDetailsStep({
         <Group title="Helps brands say yes" hint="All optional" reveal>
           <Field label="Company website">
             <input
-              type="url"
+              type="text"
+              inputMode="url"
+              autoComplete="url"
               className="form-input"
-              placeholder="https://"
+              placeholder="sensa-retail.com"
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
             />

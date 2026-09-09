@@ -14,7 +14,7 @@ import {
   type AddressForm,
 } from '@/components/address/ShippingAddressFields';
 import { COUNTRIES } from '@/lib/countries';
-import { initials } from '@/lib/format';
+import { initials, normalizeWebsite } from '@/lib/format';
 import { useAppActions, useAppState } from '@/lib/store';
 import type { AnnualVolume, Buyer, BusinessType, ContactChannel } from '@/lib/types';
 import type { CategoryKey } from '@/lib/categories';
@@ -112,7 +112,7 @@ export default function ProfilePage() {
       country: form.country,
       businessType: form.businessType,
       annualVolume: form.annualVolume,
-      website: form.website.trim() || undefined,
+      website: normalizeWebsite(form.website) || undefined,
       categories: form.categories,
       contactChannel: form.contactChannel,
       contactHandle: form.contactHandle.trim() || undefined,
@@ -175,14 +175,29 @@ export default function ProfilePage() {
                 ))}
               </select>
             </Field>
-            <Field label="Company website">
+            <Field
+              label="Company website"
+              hint={buyer.website ? undefined : 'Brands check this before sending samples.'}
+            >
               <input
-                type="url"
+                type="text"
+                inputMode="url"
+                autoComplete="url"
                 className="form-input"
-                placeholder="https://"
+                placeholder="sensa-retail.com"
                 value={form.website}
                 onChange={(e) => set({ website: e.target.value })}
               />
+              {buyer.website && (
+                <a
+                  href={buyer.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 inline-block text-[12px] text-sub underline underline-offset-2 hover:text-ink"
+                >
+                  {buyer.website}
+                </a>
+              )}
             </Field>
           </div>
         </Card>

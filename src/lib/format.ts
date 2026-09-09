@@ -26,3 +26,21 @@ export function initials(name: string): string {
   if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
   return (words[0][0] + words[1][0]).toUpperCase();
 }
+
+/**
+ * 손님이 친 웹사이트 주소를 링크 가능한 형태로 정규화한다.
+ *
+ * ⚠️ 입력칸에 `type="url"` 을 쓰면 안 된다 — 브라우저가 스킴 없는 `acme.com` 을
+ *    거절해 **폼 제출 자체가 막힌다.** 도메인만 치는 게 정상적인 입력이므로
+ *    받아 주고 여기서 `https://` 를 붙인다.
+ * ⚠️ 정규화는 **저장 시점에만** 한다. 타이핑 중이나 blur 에 붙이면 아직 다 치지도
+ *    않은 값에 스킴이 끼어들어 커서가 튄다.
+ */
+export function normalizeWebsite(input: string): string {
+  const v = input.trim();
+  if (!v) return '';
+  // http/https 외의 스킴(mailto:, javascript: 등)은 웹사이트가 아니므로 붙이지 않고
+  // 그대로 두면 href 로 나갈 때 위험하다 → 스킴이 있어도 http(s) 가 아니면 https 를 씌운다.
+  if (/^https?:\/\//i.test(v)) return v;
+  return `https://${v.replace(/^\/+/, '')}`;
+}

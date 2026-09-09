@@ -28,11 +28,22 @@ import type {
 
 const KEY = 'klow_buyer_design_v1';
 
+/** 이메일은 대소문자를 구분하지 않는다 — Alex@… 로 로그인해도 같은 프로필이어야 한다. */
+export function profileKey(email: string): string {
+  return email.trim().toLowerCase();
+}
+
 export type AppState = {
   buyer: Buyer | null;
   requests: SampleRequest[];
   threads: ChatThread[];
   pendingIntent: PendingIntent;
+  /**
+   * 이메일 → 프로필. 실서버의 계정 테이블을 대신한다(@PORT(drop)).
+   * 없으면 로그아웃 후 다시 로그인했을 때 저장해 둔 회사 정보·기본 배송지가
+   * 통째로 사라져 데모에서 버그로 읽힌다.
+   */
+  savedProfiles: Record<string, Buyer>;
   /**
    * 인증 모달 개폐. pendingIntent 와 같은 흐름이라 같은 컨테이너에 둔다 —
    * 별도 컨텍스트를 만들면 Providers 중첩만 늘고 두 값이 따로 놀 여지가 생긴다.
@@ -51,6 +62,7 @@ const EMPTY: AppState = {
   requests: [],
   threads: [],
   pendingIntent: null,
+  savedProfiles: {},
   authOpen: false,
   hydrated: false,
 };
@@ -60,6 +72,7 @@ type Action =
   | { type: 'HYDRATED' }
   | { type: 'SIGN_IN'; buyer: Buyer }
   | { type: 'SIGN_OUT' }
+  | { type: 'UPDATE_BUYER'; patch: Partial<Buyer> }
   | { type: 'SET_PENDING_INTENT'; intent: PendingIntent }
   | { type: 'CLEAR_PENDING_INTENT' }
   | { type: 'OPEN_AUTH' }
@@ -77,7 +90,22 @@ function reducer(state: AppState, action: Action): AppState {
     case 'HYDRATED':
       return { ...state, hydrated: true };
     case 'SIGN_IN':
-      return { ...state, buyer: action.buyer, authOpen: false };
+      return {
+        ...state,
+        buyer: action.buyer,
+        savedProfiles: { ...state.savedProfiles, [profileKey(action.buyer.email)]: action.buyer },
+        authOpen: false,
+      };
+    case 'UPDATE_BUYER': {
+      // 로그아웃 직후 도착한 갱신이 유령 프로필을 만들지 않게 한다.
+      if (!state.buyer) return state;
+      const next = { ...state.buyer, ...action.patch };
+      return {
+        ...state,
+        buyer: next,
+        savedProfiles: { ...state.savedProfiles, [profileKey(next.email)]: next },
+      };
+    }
     case 'SIGN_OUT':
       // 요청·스레드는 남긴다 — 데모에서 다시 로그인하면 이력이 그대로 보이는 편이 낫다.
       return { ...state, buyer: null, pendingIntent: null };
@@ -147,6 +175,7 @@ const ActionsCtx = createContext<Actions | null>(null);
 export type Actions = {
   signIn: (buyer: Buyer) => void;
   signOut: () => void;
+  updateBuyer: (patch: Partial<Buyer>) => void;
   setPendingIntent: (intent: PendingIntent) => void;
   clearPendingIntent: () => void;
   openAuth: () => void;
@@ -162,6 +191,7 @@ export function buildActions(dispatch: Dispatch<Action>): Actions {
   return {
     signIn: (buyer) => dispatch({ type: 'SIGN_IN', buyer }),
     signOut: () => dispatch({ type: 'SIGN_OUT' }),
+    updateBuyer: (patch) => dispatch({ type: 'UPDATE_BUYER', patch }),
     setPendingIntent: (intent) => dispatch({ type: 'SET_PENDING_INTENT', intent }),
     clearPendingIntent: () => dispatch({ type: 'CLEAR_PENDING_INTENT' }),
     openAuth: () => dispatch({ type: 'OPEN_AUTH' }),
@@ -227,6 +257,11 @@ export function useBuyer(): Buyer | null {
 /** @PORT(api): 이식 시 useQuery(qk.requests) 로 교체. */
 export function useRequests(): SampleRequest[] {
   return useAppState().requests;
+}
+
+/** 이 이메일로 이 브라우저에서 만든 프로필. @PORT(drop): 실서버에서는 계정 조회가 대신한다. */
+export function useSavedProfile(email: string): Buyer | undefined {
+  return useAppState().savedProfiles[profileKey(email)];
 }
 
 /** @PORT(api): 이식 시 useQuery(qk.thread(id)) 로 교체. */

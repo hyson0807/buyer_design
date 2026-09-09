@@ -8,11 +8,17 @@ import { Field } from '@/components/ui/Field';
 import { Modal } from '@/components/ui/Modal';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { useToast } from '@/components/ui/Toast';
-import { COUNTRIES, countryByName, DEFAULT_COUNTRY } from '@/lib/countries';
+import {
+  EMPTY_ADDRESS,
+  ShippingAddressFields,
+  fromShippingAddress,
+  toShippingAddress,
+  type AddressForm,
+} from '@/components/address/ShippingAddressFields';
 import { getBestsellers, getProductsByIds } from '@/lib/mock-brands';
 import { openingMessage } from '@/lib/auto-reply';
 import { useAppActions, useBuyer } from '@/lib/store';
-import type { BuyerBrand, ChatMessage, SampleRequest, ShippingAddress } from '@/lib/types';
+import type { BuyerBrand, ChatMessage, SampleRequest } from '@/lib/types';
 
 const MAX_QTY = 5;
 
@@ -28,7 +34,7 @@ export function SampleRequestModal({
   productIds: string[];
 }) {
   const buyer = useBuyer();
-  const { createRequest } = useAppActions();
+  const { createRequest, updateBuyer } = useAppActions();
   const toast = useToast();
   const router = useRouter();
 
@@ -38,32 +44,30 @@ export function SampleRequestModal({
 
   const [recipientName, setRecipientName] = useState('');
   const [email, setEmail] = useState('');
-  const [countryName, setCountryName] = useState(DEFAULT_COUNTRY.name);
-  const [phoneLocal, setPhoneLocal] = useState('');
-  const [city, setCity] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [line1, setLine1] = useState('');
-  const [line2, setLine2] = useState('');
-  const [state, setState] = useState('');
+  const [address, setAddress] = useState<AddressForm>(EMPTY_ADDRESS);
   const [message, setMessage] = useState('');
   const [coversShipping, setCoversShipping] = useState(false);
 
-  // 열릴 때마다 바깥에서 넘어온 선택과 프로필 기본값을 다시 맞춘다.
+  /**
+   * 열릴 때마다 선택과 배송지를 다시 맞춘다.
+   *
+   * ⚠️ 저장된 주소가 있으면 **통째로** 싣는다. "빈 칸만 채우기"로 하면 지난번 주소를
+   *    지우고 새 주소를 쓰다 모달을 닫은 사람이 다시 열었을 때 반쪽짜리 주소를 보게 된다.
+   *    저장본은 마지막으로 실제 발송한 주소이므로 그게 기준이다.
+   * ⚠️ 수취인 이름·이메일은 프리필만 하고 잠그지 않는다 — 구매 담당자가 가입하고
+   *    물류 담당자 주소로 받는 경우가 흔하다.
+   */
   useEffect(() => {
     if (!open) return;
     setIds(productIds);
-    if (buyer) {
-      // 프리필만 하고 잠그지 않는다 — 구매 담당자가 가입하고 물류 담당자 주소로 받는
-      // 경우가 흔해서, 수취인 정보는 프로필과 달라질 수 있다.
-      setRecipientName((prev) => prev || buyer.fullName);
-      setEmail((prev) => prev || buyer.email);
-      setCountryName((prev) => (prev === DEFAULT_COUNTRY.name ? buyer.country : prev));
-    }
+    if (!buyer) return;
+    const saved = buyer.defaultShipTo;
+    setRecipientName(saved?.recipientName || buyer.fullName);
+    setEmail(saved?.email || buyer.email);
+    setAddress(saved ? fromShippingAddress(saved) : { ...EMPTY_ADDRESS, country: buyer.country });
   }, [open, productIds, buyer]);
 
   const products = useMemo(() => getProductsByIds(brand.id, ids), [brand.id, ids]);
-  const country = countryByName(countryName) ?? DEFAULT_COUNTRY;
-  const isUS = country.code === 'US';
   const qtyOf = (id: string) => qtyById[id] ?? 1;
 
   if (!open || !buyer) return null;
@@ -72,18 +76,7 @@ export function SampleRequestModal({
     setQtyById((prev) => ({ ...prev, [id]: Math.min(MAX_QTY, Math.max(1, next)) }));
 
   const submit = () => {
-    const shipTo: ShippingAddress = {
-      recipientName: recipientName.trim(),
-      email: email.trim(),
-      country: country.name,
-      countryCode: country.code,
-      phoneLocal: phoneLocal.trim(),
-      city: city.trim(),
-      postalCode: postalCode.trim(),
-      line1: line1.trim(),
-      line2: line2.trim(),
-      state: isUS ? state.trim() : '',
-    };
+    const shipTo = toShippingAddress(address, { recipientName, email });
 
     const request: SampleRequest = {
       id: `req_${Date.now()}`,
@@ -103,7 +96,7 @@ export function SampleRequestModal({
         id: `m_${at}_0`,
         requestId: request.id,
         from: 'system',
-        text: `Sample request sent · ${units} ${units === 1 ? 'unit' : 'units'} · ship to ${country.name}`,
+        text: `Sample request sent · ${units} ${units === 1 ? 'unit' : 'units'} · ship to ${shipTo.country}`,
         createdAt: new Date(at).toISOString(),
       },
       {
@@ -117,6 +110,8 @@ export function SampleRequestModal({
 
     // @PORT(api): POST /v1/buyer/sample-requests
     createRequest(request, opening);
+    // 다음 요청을 위해 이번 배송지를 기억한다.
+    updateBuyer({ defaultShipTo: shipTo });
     toast.success(`Request sent to ${brand.name}`);
     onClose();
     router.push(`/requests/${request.id}`);
@@ -242,101 +237,12 @@ export function SampleRequestModal({
           <h3 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-mute">
             Shipping address
           </h3>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Country" required>
-              <select
-                className="form-select"
-                value={countryName}
-                onChange={(e) => setCountryName(e.target.value)}
-              >
-                {COUNTRIES.map((c) => (
-                  <option key={c.code}>{c.name}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Phone" required hint={`Sent as ${country.dial} ${phoneLocal || '…'}`}>
-              {/* 국가번호는 국가 선택에서 파생된다 — 손님이 따로 고르지 않는다. */}
-              <div className="flex items-stretch">
-                <span className="flex min-w-[62px] shrink-0 items-center justify-center rounded-l-[10px] border border-r-0 border-line bg-field px-3 text-[14px] font-semibold text-ink">
-                  {country.dial}
-                </span>
-                <input
-                  required
-                  type="tel"
-                  inputMode="tel"
-                  autoComplete="tel-national"
-                  maxLength={16}
-                  className="form-input rounded-l-none"
-                  placeholder="10 1234 5678"
-                  value={phoneLocal}
-                  onChange={(e) => setPhoneLocal(e.target.value.replace(/[^+\-()0-9 ]/g, ''))}
-                />
-              </div>
-            </Field>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            {/* ⚠️ 도시·우편번호에 예시 플레이스홀더를 넣지 않는다 — 국가마다 형식이 다른데
-                값은 고정이라, 일본을 고른 손님에게 "New York / 10014" 를 보여주게 된다. */}
-            <Field label="City" required>
-              <input
-                required
-                autoComplete="address-level2"
-                className="form-input"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-              />
-            </Field>
-            <Field label="Postal code" required>
-              <input
-                required
-                autoComplete="postal-code"
-                className="form-input"
-                value={postalCode}
-                onChange={(e) => setPostalCode(e.target.value)}
-              />
-            </Field>
-          </div>
-
-          {/* @PORT(api): klow_web 의 <AddressAutocomplete/>(Google Places)로 교체한다.
-              여기서는 API 를 붙이지 않으므로 같은 자리·같은 모양의 일반 입력칸으로 둔다 —
-              가짜 제안 목록을 띄우면 리뷰에서 동작하는 기능으로 오해된다. */}
-          <Field label="Address" required>
-            <input
-              required
-              autoComplete="address-line1"
-              className="form-input"
-              placeholder="Street address"
-              value={line1}
-              onChange={(e) => setLine1(e.target.value)}
-            />
-          </Field>
-
-          <Field label="Apartment, suite, etc." hint="Optional">
-            <input
-              autoComplete="address-line2"
-              className="form-input"
-              placeholder="Apt 4B"
-              value={line2}
-              onChange={(e) => setLine2(e.target.value)}
-            />
-          </Field>
-
-          {/* 미국 배송 전용 — EFS 송장이 "City, State" 를 요구한다(klow_web 과 동일). */}
-          {isUS && (
-            <Field label="State" required hint="Two-letter code, e.g. NY">
-              <input
-                required
-                autoComplete="address-level1"
-                maxLength={2}
-                className="form-input uppercase"
-                placeholder="NY"
-                value={state}
-                onChange={(e) => setState(e.target.value.toUpperCase())}
-              />
-            </Field>
-          )}
+          {/* 프로필 페이지의 기본 배송지와 **같은 컴포넌트**다 — 두 화면이 각자 그리면
+              필드 순서·국가번호 파생·미국 State 규칙이 갈린다. */}
+          <ShippingAddressFields
+            value={address}
+            onChange={(patch) => setAddress((prev) => ({ ...prev, ...patch }))}
+          />
         </section>
 
         <section className="space-y-4 border-t border-line pt-6">

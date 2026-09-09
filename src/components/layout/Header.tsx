@@ -3,11 +3,15 @@
 import Link from 'next/link';
 import { MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { usePathname } from 'next/navigation';
+import { initials } from '@/lib/format';
+import { cn } from '@/lib/utils';
 import { useAppActions, useAppState } from '@/lib/store';
 
 export function Header() {
   const { buyer, requests, hydrated } = useAppState();
   const { openAuth } = useAppActions();
+  const pathname = usePathname();
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-line bg-bg/85 backdrop-blur-[10px]">
@@ -39,19 +43,40 @@ export function Header() {
           {!hydrated ? (
             <span aria-hidden className="h-11 w-[92px]" />
           ) : buyer ? (
-            <Link
-              href="/requests"
-              aria-label="My requests"
-              className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[10px] px-3 py-2 text-[14px] font-medium text-sub transition-colors hover:bg-ink/[0.05] hover:text-ink"
-            >
-              <MessageSquare className="h-4 w-4" strokeWidth={2} />
-              <span className="hidden sm:inline">My requests</span>
-              {requests.length > 0 && (
-                <span className="ml-0.5 rounded-full bg-accent-pale px-1.5 py-0.5 text-[11px] font-bold tabular-nums text-accent-strong">
-                  {requests.length}
-                </span>
-              )}
-            </Link>
+            <>
+              <Link
+                href="/requests"
+                aria-label="My requests"
+                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[10px] px-3 py-2 text-[14px] font-medium text-sub transition-colors hover:bg-ink/[0.05] hover:text-ink"
+              >
+                <MessageSquare className="h-4 w-4" strokeWidth={2} />
+                <span className="hidden sm:inline">My requests</span>
+                {requests.length > 0 && (
+                  <span className="ml-0.5 rounded-full bg-accent-pale px-1.5 py-0.5 text-[11px] font-bold tabular-nums text-accent-strong">
+                    {requests.length}
+                  </span>
+                )}
+              </Link>
+              {/*
+                프로필은 드롭다운이 아니라 페이지로 간다 — 회사 정보 + 기본 배송지라
+                메뉴에 담기엔 크고, 로그아웃도 거기 있다(다른 곳엔 로그아웃이 없다).
+                아바타는 이니셜뿐이다. 바이어 사진을 받는 화면이 없으므로 이미지 자리를
+                만들면 영원히 빈 채로 남는다.
+              */}
+              <Link
+                href="/profile"
+                aria-label="Profile"
+                title={buyer.companyName}
+                className={cn(
+                  'ml-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[12.5px] font-bold transition-colors',
+                  pathname === '/profile'
+                    ? 'bg-ink text-white'
+                    : 'bg-accent-pale text-accent-strong hover:bg-accent/20',
+                )}
+              >
+                {initials(buyer.fullName)}
+              </Link>
+            </>
           ) : (
             <Button size="sm" onClick={() => openAuth()} className="ml-2">
               Sign in

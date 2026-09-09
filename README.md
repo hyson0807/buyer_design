@@ -23,6 +23,7 @@ npm run check:images # 목데이터의 원격 이미지 URL 전수 검증
 | `/brands/[slug]` | 브랜드 소개 · Brand facts · 제품 그리드(다중 선택) · Request samples |
 | `/requests` | 내 요청 목록 = 채팅 진입 허브 |
 | `/requests/[id]` | 요청 요약 + 상태 스테퍼 + 브랜드 채팅 |
+| `/profile` | 회사 정보 · 기본 배송지 확인/수정 + 로그아웃 (헤더 아바타로 진입) |
 
 브랜드 상세의 **View storefront** 와 제품 카드 클릭은 klow_web(`klow.kr`)의 실제 판매
 페이지를 **새 탭**으로 연다 — 브랜드관·제품 상세를 여기서 다시 만들지 않는다. 그래서
@@ -38,6 +39,10 @@ npm run check:images # 목데이터의 원격 이미지 URL 전수 검증
 비밀번호를, 신규면 계정 만들기를 띄운다. "로그인 / 회원가입" 중 무엇을 누를지 손님에게
 묻지 않는다. 데모에서 기존 계정 경로를 보려면 `alex@sensa-retail.com`(모달에 안내가
 떠 있다), 신규 경로는 아무 다른 주소나 넣으면 된다(`src/lib/mock-buyers.ts`).
+
+요청을 보내면 그 배송지가 프로필의 **기본 배송지**로 저장돼 다음 요청 폼이 미리 채워진다.
+요청 모달과 프로필은 `components/address/ShippingAddressFields.tsx` **같은 컴포넌트**를 쓴다 —
+각자 그리면 필드 순서·국가번호 파생·미국 State 규칙이 갈린다.
 
 푸터의 **Reset demo** 로 세션·요청·대화를 초기화한다.
 

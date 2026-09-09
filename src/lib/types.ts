@@ -109,6 +109,12 @@ export type Buyer = {
   categories: CategoryKey[];
   contactChannel?: ContactChannel;
   contactHandle?: string;
+  /**
+   * 마지막으로 보낸 요청의 배송지. 다음 요청 폼을 이걸로 미리 채운다 —
+   * 바이어는 대개 같은 창고로 계속 받으므로 매번 다시 치게 하면 안 된다.
+   * @PORT(schema): 실서버에서는 주소록 테이블(기본 주소 1개)이 이 자리를 대신한다.
+   */
+  defaultShipTo?: ShippingAddress;
   createdAt: string;
 };
 

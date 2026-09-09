@@ -8,7 +8,7 @@ import { Modal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/Toast';
 import { BusinessDetailsStep, type BusinessDetails } from '@/components/auth/BusinessDetailsStep';
 import { DEMO_ACCOUNT_EMAIL, findRegisteredBuyer } from '@/lib/mock-buyers';
-import { useAppActions, useAppState } from '@/lib/store';
+import { profileKey, useAppActions, useAppState } from '@/lib/store';
 import type { Buyer } from '@/lib/types';
 
 /**
@@ -28,7 +28,7 @@ import type { Buyer } from '@/lib/types';
 type Step = 'email' | 'password' | 'signup' | 'business';
 
 export function AuthModalMount() {
-  const { authOpen, pendingIntent } = useAppState();
+  const { authOpen, pendingIntent, savedProfiles } = useAppState();
   const { closeAuth, signIn } = useAppActions();
   const toast = useToast();
 
@@ -56,9 +56,13 @@ export function AuthModalMount() {
     toast.success(`Welcome, ${buyer.fullName.split(' ')[0]}`);
   };
 
-  /** @PORT(api): POST /v1/buyer/auth/check-email — 가입 여부로 갈래를 정한다. */
+  /**
+   * @PORT(api): POST /v1/buyer/auth/check-email — 가입 여부로 갈래를 정한다.
+   * ⚠️ 이 브라우저에서 만든 프로필을 먼저 본다 — 데모에서 가입했다 로그아웃한 사람이
+   *    같은 이메일로 돌아오면 기존 계정이어야 한다(아니면 회사 정보를 또 입력하게 된다).
+   */
   const submitEmail = () => {
-    const found = findRegisteredBuyer(email);
+    const found = savedProfiles[profileKey(email)] ?? findRegisteredBuyer(email);
     setKnown(found ?? null);
     if (found) {
       setStep('password');
@@ -70,7 +74,7 @@ export function AuthModalMount() {
 
   /** @PORT(auth): 실제 Google OAuth 왕복으로 교체. 데모에서는 1클릭으로 통과시킨다. */
   const googleDemo = () => {
-    const demo = findRegisteredBuyer(DEMO_ACCOUNT_EMAIL);
+    const demo = savedProfiles[profileKey(DEMO_ACCOUNT_EMAIL)] ?? findRegisteredBuyer(DEMO_ACCOUNT_EMAIL);
     if (demo) finish(demo);
   };
 

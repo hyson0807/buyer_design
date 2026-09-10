@@ -13,11 +13,21 @@ export function CategoryFilter({
   selected,
   onSelect,
   includeAll = true,
+  wrap = false,
 }: {
   /** 단일 선택은 CategoryKey | null, 다중 선택은 CategoryKey[] */
   selected: CategoryKey | null | CategoryKey[];
   onSelect: (key: CategoryKey | null) => void;
   includeAll?: boolean;
+  /**
+   * 폼 안의 다중 선택이면 `true`.
+   *
+   * ⚠️⚠️ 홈의 필터는 가로 스크롤이지만(그리드 위 한 줄로 눌러 둬야 한다), **폼 필드는
+   *    반드시 줄바꿈**이다. 스크롤로 두면 390px 화면에서 `Mask` 뒤가 잘리고 스크롤바도
+   *    숨겨져 있어(`scrollbar-hide`), 손님은 선택지가 넷뿐이라고 믿는다 — 고를 수 있는
+   *    것을 못 보게 만드는 건 목록을 안 보여준 것과 같다.
+   */
+  wrap?: boolean;
 }) {
   const multi = Array.isArray(selected);
   const isOn = (key: CategoryKey | null) =>
@@ -40,7 +50,12 @@ export function CategoryFilter({
   );
 
   return (
-    <div className="scrollbar-hide -mx-1 flex items-center gap-6 overflow-x-auto px-1 lg:gap-8">
+    <div
+      className={cn(
+        '-mx-1 flex items-center px-1',
+        wrap ? 'flex-wrap gap-x-6 gap-y-1' : 'scrollbar-hide gap-6 overflow-x-auto lg:gap-8',
+      )}
+    >
       {includeAll && item(null, 'All')}
       {CATEGORIES.map((c) => item(c.key, c.label))}
     </div>

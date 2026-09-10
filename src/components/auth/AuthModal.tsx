@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Mail } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
 import { Modal } from '@/components/ui/Modal';
@@ -113,12 +113,12 @@ export function AuthModalMount() {
   const subtitle =
     step === 'email'
       ? pendingIntent
-        ? 'Brands reply to verified buyers — one step and your request is on its way.'
-        : 'Enter your work email and we’ll take it from there.'
+        ? 'Your selection is saved. Sign in and it goes straight into the request.'
+        : 'Enter your work email — we’ll check whether you already have an account.'
       : step === 'password'
         ? `${known?.companyName ?? ''} · ${email}`
         : step === 'signup'
-          ? `No KLOW account for ${email} yet — let’s make one.`
+          ? `No account for ${email} yet. Two short steps and you’re in.`
           : 'Brands use this to decide which samples to send.';
 
   return (
@@ -289,29 +289,26 @@ function Divider() {
   );
 }
 
-/** klow_brand 관례대로 소셜은 텍스트 버튼이 아니라 아이콘 원형 버튼이다. */
+/**
+ * ⚠️ 예전에는 klow_brand 관례를 따라 라벨 없는 원형 아이콘 버튼 두 개(구글 · 봉투)를
+ *    나란히 뒀는데, 여기서는 **둘 다 틀렸다**:
+ *    ① 봉투 버튼은 바로 위 폼과 하는 일이 같다(이 모달은 애초에 이메일부터 받는다).
+ *       실제로 두 버튼의 onClick 이 같은 함수였다 — 손님에게는 정체를 알 수 없는
+ *       동그라미가 하나 늘어난 것뿐이다.
+ *    ② 제공자가 하나뿐이면 아이콘만 있는 원은 "무엇을 하는 버튼인지"를 hover 로만
+ *       말한다. 터치 기기에는 그 hover 가 없다.
+ *    그래서 라벨이 붙은 가로 버튼 하나로 줄였다.
+ */
 function SocialRow({ onGoogle }: { onGoogle: () => void }) {
   return (
-    <div className="flex items-center justify-center gap-4">
-      <button
-        type="button"
-        onClick={onGoogle}
-        aria-label="Continue with Google"
-        title="Continue with Google"
-        className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface transition hover:border-ink/40"
-      >
-        <GoogleIcon />
-      </button>
-      <button
-        type="button"
-        onClick={onGoogle}
-        aria-label="Continue with an email link"
-        title="Continue with an email link"
-        className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface transition hover:border-ink/40"
-      >
-        <Mail className="h-[18px] w-[18px] text-ink" strokeWidth={2.25} />
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={onGoogle}
+      className="flex h-11 w-full items-center justify-center gap-2.5 rounded-[10px] border border-line bg-surface text-[15px] font-semibold text-ink transition-all hover:border-ink/40 active:scale-[0.99]"
+    >
+      <GoogleIcon />
+      Continue with Google
+    </button>
   );
 }
 

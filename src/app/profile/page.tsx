@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
 import { useToast } from '@/components/ui/Toast';
@@ -85,14 +84,14 @@ export default function ProfilePage() {
   if (!buyer) {
     return (
       <Shell>
-        <div className="mt-8 rounded-xl2 border border-dashed border-line px-5 py-14 text-center sm:mt-10 sm:px-6 sm:py-20">
+        <div className="mt-10 border-t border-line pt-14 sm:pt-16">
           <p className="font-display text-[18px] font-semibold text-ink">
             Sign in to see your profile
           </p>
-          <p className="mx-auto mt-2 max-w-[360px] text-[14px] text-sub">
+          <p className="mt-2 max-w-[380px] text-[14px] leading-relaxed text-sub">
             Your company details and default shipping address live here.
           </p>
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6">
             <Button onClick={openAuth}>Sign in</Button>
           </div>
         </div>
@@ -127,7 +126,7 @@ export default function ProfilePage() {
   return (
     <Shell>
       <header className="mt-6 flex items-center gap-3 sm:mt-8 sm:gap-4">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent-pale font-display text-[16px] font-bold text-accent-strong sm:h-14 sm:w-14 sm:text-[17px]">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink font-display text-[16px] font-bold text-white sm:h-14 sm:w-14 sm:text-[17px]">
           {initials(buyer.fullName)}
         </span>
         <div className="min-w-0">
@@ -140,7 +139,7 @@ export default function ProfilePage() {
       </header>
 
       <form
-        className="mt-6 space-y-5 sm:mt-8 sm:space-y-6"
+        className="mt-6 overflow-hidden rounded-xl2 border border-line bg-surface sm:mt-8"
         onSubmit={(e) => {
           e.preventDefault();
           save();
@@ -235,6 +234,7 @@ export default function ProfilePage() {
             <CategoryFilter
               selected={form.categories}
               includeAll={false}
+              wrap
               onSelect={(key) =>
                 key &&
                 set({
@@ -300,7 +300,7 @@ export default function ProfilePage() {
         </Card>
 
         {/* ⚠️ `flex-wrap` 이 있어야 320px 에서 "Sign out" 이 화면 밖으로 밀리지 않는다. */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pb-4">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-line bg-bg px-5 py-4 sm:px-7 sm:py-5">
           <Button type="submit" disabled={!dirty}>
             Save changes
           </Button>
@@ -332,22 +332,22 @@ export default function ProfilePage() {
 function Shell({ children }: { children?: React.ReactNode }) {
   return (
     <div className="mx-auto max-w-[760px] px-6 pb-4 pt-8 md:px-10 md:pt-14">
-      <div className="flex items-baseline justify-between gap-4">
-        <h1 className="font-display text-[26px] font-semibold tracking-[-0.03em] sm:text-[32px]">
-          Profile
-        </h1>
-        <Link
-          href="/requests"
-          className="text-[13px] font-medium text-sub underline underline-offset-2 hover:text-ink"
-        >
-          My requests
-        </Link>
-      </div>
+      {/* ⚠️ 여기에 "My requests" 링크를 두지 않는다 — 같은 링크가 고정 헤더에 늘 떠
+             있어서, 제목 옆에 또 두면 화면에 같은 목적지가 두 개 보인다. */}
+      <h1 className="font-display text-[26px] font-semibold tracking-[-0.03em] sm:text-[32px]">
+        Profile
+      </h1>
       {children}
     </div>
   );
 }
 
+/**
+ * ⚠️ 구획마다 카드를 따로 두지 않는다. 같은 폭·같은 라운딩·같은 테두리의 흰 상자가
+ *    셋 쌓이면 어느 상자가 무엇인지 형태로는 구분되지 않고, 프로필이 "설정 대시보드"
+ *    처럼 보인다. 한 장 안에서 머리글 + 실선으로 나누면 구획은 그대로 읽히면서
+ *    화면에 남는 상자는 하나뿐이다.
+ */
 function Card({
   title,
   hint,
@@ -358,7 +358,7 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-4 rounded-xl2 border border-line bg-surface p-5 sm:p-6">
+    <section className="space-y-4 border-t border-line px-5 py-6 first:border-t-0 sm:px-7 sm:py-7">
       <div>
         <h2 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-mute">{title}</h2>
         {hint && <p className="mt-1 text-[12.5px] text-sub">{hint}</p>}

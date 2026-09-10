@@ -24,12 +24,19 @@ export function BrandCard({ brand, priority }: { brand: BuyerBrand; priority?: b
           className="transition-transform duration-400 group-hover:scale-[1.04]"
         />
       </div>
-      <div className="py-3 sm:py-4">
-        <h3 className="font-display text-[14px] font-medium text-ink sm:text-[15px]">{brand.name}</h3>
-        {/* ⚠️ 2컬럼 모바일에서 이 줄은 카드 폭(≈150px)을 넘겨 세 줄까지 늘어난다.
-            두 줄로 잘라 카드 높이가 사진마다 들쭉날쭉해지는 것을 막는다. */}
-        <p className="mt-0.5 line-clamp-2 text-[12px] text-mute">
-          {brand.categoryKeys.map(categoryLabel).join(' · ')} &middot; MOQ {brand.moqUnits}
+      <div className="py-3 sm:py-3.5">
+        <h3 className="truncate font-display text-[14px] font-medium text-ink sm:text-[15px]">
+          {brand.name}
+        </h3>
+        {/*
+          ⚠️ 캡션은 **한 줄로 못 박는다.** 카테고리를 전부 이으면 2컬럼 모바일(카드 폭
+             ≈150px)에서 두세 줄까지 늘어나고, 그러면 그리드 행마다 캡션 높이가 달라져
+             사진 아래 기준선이 어긋난다 — 갤러리에서 가장 먼저 눈에 띄는 흐트러짐이다.
+             대표 카테고리 하나 + MOQ 면 320px 에서도 접히지 않는다.
+        */}
+        <p className="mt-0.5 truncate text-[12px] text-sub">
+          {categoryLabel(brand.categoryKeys[0])}
+          <span className="text-mute"> · MOQ {brand.moqUnits}</span>
         </p>
       </div>
     </Link>

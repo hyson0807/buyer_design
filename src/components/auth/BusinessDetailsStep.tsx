@@ -149,7 +149,7 @@ export function BusinessDetailsStep({
       )}
 
       {step2Done && (
-        <Group title="Helps brands say yes" hint="All optional" reveal>
+        <Group title="Optional details" hint="Brands read these before deciding." reveal>
           <Field label="Company website">
             <input
               type="text"
@@ -170,6 +170,7 @@ export function BusinessDetailsStep({
             <CategoryFilter
               selected={categories}
               includeAll={false}
+              wrap
               onSelect={(key) =>
                 key &&
                 setCategories((prev) =>
@@ -223,7 +224,8 @@ export function BusinessDetailsStep({
               type="checkbox"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
-              className="mt-0.5 h-4 w-4 shrink-0 accent-[#7C3AED]"
+              // ⚠️ 하드코딩 hex(#7C3AED)가 아니라 토큰이고, 색도 잉크다(선택 상태).
+              className="mt-0.5 h-4 w-4 shrink-0 accent-ink"
             />
             <span>
               I agree to the{' '}
@@ -245,12 +247,13 @@ export function BusinessDetailsStep({
           </Button>
           {/* ⚠️ 제출 버튼에 fullWidth(w-full)를 쓰지 않는다 — flex 행 안에서 100% 를
               요구해 Back 과 함께 모달 밖으로 넘친다(실제로 그렇게 깨져 있었다).
-              flex 행에서는 flex-1 로 남는 공간을 받는다. */}
-          {step2Done && (
-            <Button type="submit" className="flex-1" disabled={!agreed}>
-              Create account
-            </Button>
-          )}
+              flex 행에서는 flex-1 로 남는 공간을 받는다.
+              ⚠️ 마지막 묶음이 열렸을 때만 그리지 말 것. 그러면 첫 화면의 고정 바닥에
+                 `Back` 하나만 남아, 다 채우면 무엇이 되는지 모른 채 시작하게 된다
+                 (막다른 길처럼 보였다). 늘 그리되 비활성으로 둔다. */}
+          <Button type="submit" className="flex-1" disabled={!step2Done || !agreed}>
+            Create account
+          </Button>
         </div>
       </div>
     </form>
@@ -267,7 +270,9 @@ function Progress({ done, total }: { done: number; total: number }) {
             key={i}
             className={cn(
               'h-1 flex-1 rounded-full transition-colors',
-              i <= done ? 'bg-accent-strong' : 'bg-line',
+              // ⚠️ 채움은 보라가 아니라 잉크다 — 이 프로젝트에서 진행·선택·현재는
+              //    전부 잉크가 맡고, 보라는 주 CTA 와 포커스링에만 남긴다.
+              i <= done ? 'bg-ink' : 'bg-line',
             )}
           />
         ))}

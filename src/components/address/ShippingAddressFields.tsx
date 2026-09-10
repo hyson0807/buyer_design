@@ -94,7 +94,13 @@ export function ShippingAddressFields({
             ))}
           </select>
         </Field>
-        <Field label="Phone" required hint={`Sent as ${country.dial} ${value.phoneLocal || '…'}`}>
+        {/* ⚠️ 힌트는 실제로 보여 줄 번호가 있을 때만 그린다. 빈 칸에 `Sent as +1 …` 을
+               띄우면 아직 아무것도 안 친 손님에게 말줄임표만 남아 고장난 줄로 읽힌다. */}
+        <Field
+          label="Phone"
+          required
+          hint={value.phoneLocal ? `Sent as ${country.dial} ${value.phoneLocal}` : undefined}
+        >
           {/* 국가번호는 국가 선택에서 파생된다 — 손님이 따로 고르지 않는다. */}
           <div className="flex items-stretch">
             <span className="flex min-w-[62px] shrink-0 items-center justify-center rounded-l-[10px] border border-r-0 border-line bg-field px-3 text-[14px] font-semibold text-ink">

@@ -18,8 +18,13 @@ export function BrandGrid() {
 
   return (
     <>
-      <div className="mt-10 border-b border-line">
+      {/* ⚠️ 개수는 필터 스크롤 컨테이너 **밖**에 둔다. 안에 넣으면 좁은 화면에서
+             카테고리와 함께 가로로 밀려 스크롤해야만 보인다. */}
+      <div className="mt-10 flex items-end justify-between gap-6 border-b border-line">
         <CategoryFilter selected={category} onSelect={setCategory} />
+        <p className="hidden shrink-0 py-2 text-[12.5px] tabular-nums text-mute lg:block">
+          {visible.length} {visible.length === 1 ? 'brand' : 'brands'}
+        </p>
       </div>
 
       {/*

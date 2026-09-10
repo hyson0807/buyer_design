@@ -5,6 +5,11 @@ import type { Buyer, BuyerBrand, ChatMessage, ProductListItem } from '@/lib/type
  *
  * ⚠️ **랜덤을 쓰지 않는다.** 데모를 두 번 돌렸을 때 다른 답이 나오면 신뢰가 깨진다.
  *    응답은 (키워드, 턴 수)로 완전히 결정된다.
+ *
+ * ⚠️ **답변 끝에 서명을 붙이지 않는다.** 한때 모든 메시지가 `— {브랜드명} Global Team`
+ *    으로 끝났는데, 채팅에서 매 메시지에 서명하는 사람은 없고(이메일 관습이다) 말풍선
+ *    마다 두 줄이 더 붙어 대화가 길어졌다. 누가 말하는지는 말풍선 옆 **브랜드 아바타**가
+ *    이미 말한다. ("Global Team" 은 인디 브랜드가 스스로를 부르는 말도 아니다.)
  */
 
 export type ReplyResult = {
@@ -72,46 +77,28 @@ function replyText(
   brandTurn: number,
 ): ReplyResult {
   const hook = KEYWORD_HOOKS.find((h) => h.test.test(incoming));
-  if (hook) return { text: sign(hook.reply(brand), brand) };
+  if (hook) return { text: hook.reply(brand) };
 
   if (brandTurn === 1) {
     return {
-      text: sign(
-        `Thanks for the details. We can ship samples to ${buyer.country} — courier is DHL and it usually takes 5 business days after we hand over the box. Could you share the retail price band you are targeting?`,
-        brand,
-      ),
+      text: `Thanks for the details. We can ship samples to ${buyer.country} — courier is DHL and it usually takes 5 business days after we hand over the box. Could you share the retail price band you are targeting?`,
     };
   }
 
   if (brandTurn === 2) {
     return {
-      text: sign(
-        'Your sample box went out this morning. Tracking is below — please let us know once it arrives and we can set up a call about first order terms.',
-        brand,
-      ),
+      text: 'Your sample box went out this morning. Tracking is below — please let us know once it arrives and we can set up a call about first order terms.',
     };
   }
 
-  return { text: sign(FOLLOW_UPS[(brandTurn - 3) % FOLLOW_UPS.length], brand) };
+  return { text: FOLLOW_UPS[(brandTurn - 3) % FOLLOW_UPS.length] };
 }
 
 /** 요청 직후 자동으로 붙는 브랜드 인사말(turn 0). */
-export function openingMessage(
-  brand: BuyerBrand,
-  buyer: Buyer,
-  products: ProductListItem[],
-): string {
+export function openingMessage(buyer: Buyer, products: ProductListItem[]): string {
   const names = products.slice(0, 3).map((p) => p.name).join(', ');
   const more = products.length > 3 ? ` and ${products.length - 3} more` : '';
-  return sign(
-    `Hi ${buyer.fullName.split(' ')[0]}, thanks for reaching out from ${buyer.companyName} in ${buyer.country}. We received your request for ${names}${more}. Let me confirm stock and get back to you shortly — in the meantime, feel free to ask about MOQ, pricing or certifications.`,
-    brand,
-  );
-}
-
-/** 서명이 붙으면 브랜드마다 다른 사람이 답하는 것처럼 읽힌다. */
-function sign(text: string, brand: BuyerBrand): string {
-  return `${text}\n\n— ${brand.name} Global Team`;
+  return `Hi ${buyer.fullName.split(' ')[0]}, thanks for reaching out from ${buyer.companyName} in ${buyer.country}. We have your request for ${names}${more}. Let me confirm stock and come back to you today. Ask me anything about MOQ, pricing or certifications in the meantime.`;
 }
 
 /** 트래킹 번호도 결정론적으로 만든다. */

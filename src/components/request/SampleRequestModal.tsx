@@ -103,7 +103,7 @@ export function SampleRequestModal({
         id: `m_${at}_1`,
         requestId: request.id,
         from: 'brand',
-        text: openingMessage(brand, buyer, products),
+        text: openingMessage(buyer, products),
         createdAt: new Date(at + 1000).toISOString(),
       },
     ];
@@ -135,16 +135,26 @@ export function SampleRequestModal({
         }}
       >
         <section>
-          <span className="mb-2 block text-[13px] font-semibold text-ink">
-            Selected products{' '}
-            <span className="font-normal tabular-nums text-mute">{products.length}</span>
-          </span>
+          {/* ⚠️ 제목 뒤에 숫자만 붙이면("Selected products 0") 제목의 일부처럼 읽힌다.
+                 개수는 골랐을 때만, 그것도 오른쪽에 떼어 둔다. */}
+          <div className="mb-2 flex items-baseline justify-between gap-3">
+            <span className="text-[13px] font-semibold text-ink">Selected products</span>
+            {products.length > 0 && (
+              <span className="text-[12px] tabular-nums text-mute">
+                {products.length} selected
+              </span>
+            )}
+          </div>
 
           {products.length === 0 ? (
             // 2차 제품 피커를 만들지 않는다 — 브랜드 페이지에 이미 그리드가 있고,
             // 아무것도 안 고른 사람에게 필요한 건 목록이 아니라 한 번의 채움이다.
-            <div className="rounded-[10px] border border-dashed border-line px-4 py-5 text-center">
-              <p className="text-[13px] text-sub">No products selected yet.</p>
+            // ⚠️ 점선 테두리를 쓰지 않는다 — 점선은 "여기에 끌어다 놓으라"는 뜻인데
+            //    여기서 할 일은 드래그가 아니라 뒤 화면에서 고르거나 버튼을 누르는 것이다.
+            <div className="rounded-[10px] bg-field px-4 py-5 text-center">
+              <p className="text-[13px] text-sub">
+                Nothing picked yet — close this and tick products, or start from the shortlist.
+              </p>
               <Button
                 type="button"
                 variant="outline"
@@ -152,17 +162,22 @@ export function SampleRequestModal({
                 className="mt-3"
                 onClick={() => setIds(getBestsellers(brand.id, 3).map((p) => p.id))}
               >
-                Request this brand&apos;s 3 bestsellers
+                Add the 3 best sellers
               </Button>
             </div>
           ) : (
-            <ul className="space-y-2">
+            /*
+              ⚠️ 각 행을 테두리 상자로 두지 않는다. 바로 아래가 입력칸(테두리 있는 상자)
+                 들이라, 같은 모양이면 "고른 제품"과 "채워야 할 칸"이 형태로 구분되지
+                 않는다. 목록은 실선으로만 나눈다(요청 목록·브랜드 팩트와 같은 관례).
+              ⚠️ 아래쪽 실선은 두지 않는다 — 다음 구획(CONTACT)이 `border-t` 로 시작하므로
+                 두면 14px 간격으로 실선이 두 줄 그어진다(실측).
+              ⚠️ 썸네일 라운딩은 10px 로 맞춘다 — 7px 은 이 프로젝트에 없는 네 번째 값이었다.
+            */
+            <ul className="divide-y divide-line border-t border-line">
               {products.map((p) => (
-                <li
-                  key={p.id}
-                  className="flex items-center gap-3 rounded-[10px] border border-line bg-surface p-2"
-                >
-                  <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[7px] bg-field">
+                <li key={p.id} className="flex items-center gap-3 py-2.5">
+                  <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] bg-field">
                     <SafeImage
                       src={p.image}
                       alt={p.name}

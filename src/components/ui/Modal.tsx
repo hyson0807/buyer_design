@@ -65,7 +65,10 @@ export function Modal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
+      {/* ⚠️ 배경에 blur 를 걸지 않는다. 뒤의 사진·글자가 뭉개져 번지면서 화면 전체가
+             흐린 유리처럼 보이고, 정작 모달 카드의 흰 면과 대비가 약해진다.
+             그냥 어둡게 덮으면 모달 경계가 또렷해지고 뒤 페이지도 형태를 유지한다. */}
+      <div className="absolute inset-0 bg-ink/45" />
       <div
         className={cn(
           'relative w-full overflow-y-auto bg-surface shadow-pop',

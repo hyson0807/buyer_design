@@ -12,9 +12,17 @@ import { cn } from '@/lib/utils';
 type Variant = 'primary' | 'outline' | 'ghost';
 type Size = 'md' | 'sm';
 
+/**
+ * ⚠️ disabled 를 `opacity-40` 으로만 두지 않는다 — 보라 배경이 40% 로 흐려지면 연보라
+ *    덩어리가 되어 "누르는 중"이나 로딩처럼 읽힌다(프로필의 Save changes 가 실제로
+ *    그렇게 보였다). 비활성은 색이 옅은 CTA 가 아니라 **색이 없는** 상태여야 한다.
+ *    `disabled:` 는 의사클래스라 특이도가 높아 `cn()` 이 merge 가 아니어도 이긴다.
+ */
+const DISABLED = 'disabled:bg-field disabled:text-mute disabled:border-transparent';
+
 const VARIANT: Record<Variant, string> = {
-  primary: 'bg-accent-strong text-white hover:opacity-90',
-  outline: 'border border-line bg-surface text-ink hover:border-ink/40',
+  primary: `bg-accent-strong text-white hover:opacity-90 ${DISABLED}`,
+  outline: `border border-line bg-surface text-ink hover:border-ink/40 ${DISABLED}`,
   ghost: 'text-sub hover:bg-ink/[0.05] hover:text-ink',
 };
 
@@ -41,7 +49,7 @@ export function Button({
       {...rest}
       className={cn(
         'inline-flex shrink-0 items-center justify-center gap-2 font-semibold transition-all',
-        'active:scale-[0.99] disabled:opacity-40 disabled:active:scale-100 disabled:cursor-not-allowed',
+        'active:scale-[0.99] disabled:active:scale-100 disabled:cursor-not-allowed',
         'focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-accent/40',
         VARIANT[variant],
         SIZE[size],

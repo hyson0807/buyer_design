@@ -33,6 +33,11 @@ export function ProductCard({
   selected: boolean;
   onToggle: () => void;
 }) {
+  // 제목의 마지막 낱말 — 화살표와 함께 줄바꿈되지 않게 묶어 둘 조각이다.
+  const words = product.name.split(' ');
+  const tail = words.pop() ?? '';
+  const head = words.length ? `${words.join(' ')} ` : '';
+
   return (
     <div className="group relative min-w-0">
       <a
@@ -54,20 +59,35 @@ export function ProductCard({
             accent={accent}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
-          {/* 새 탭으로 나간다는 신호.
-              ⚠️ 터치 기기에는 hover 가 없다 — hover 전용으로 두면 모바일 사용자는
-                 카드를 누르면 사이트를 벗어난다는 사실을 **끝까지 알 수 없다.**
-                 그래서 좁은 화면에서는 늘 보이고, 포인터가 있는 화면에서만 숨긴다. */}
-          <span className="pointer-events-none absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-surface/90 px-2 py-1 text-[10.5px] font-semibold text-ink backdrop-blur-sm transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
-            View on KLOW
-            <ArrowUpRight className="h-3 w-3" strokeWidth={2.5} />
-          </span>
         </div>
         <div className="pt-2.5">
-          <p className="line-clamp-2 text-[15px] font-semibold leading-[1.35] tracking-[-0.01em] text-ink">
-            {product.name}
+          {/*
+            "새 탭으로 나간다"는 신호는 **제품명 옆 화살표 하나**다.
+            ⚠️ 예전에는 사진 위에 흰 알약 배지("View on KLOW")를 얹었는데, 터치 기기에는
+               hover 가 없어 모바일에서 늘 보이게 둘 수밖에 없었다 — 그러면 그리드의
+               모든 사진마다 스티커가 하나씩 붙는다(제품 5개면 5개). 화살표는 같은 사실을
+               말하면서 사진을 건드리지 않고, hover 유무로 갈리지도 않아 기기별 분기가
+               통째로 사라진다.
+            ⚠️ 제목 자리 높이를 두 줄로 못 박는다. 한 줄짜리 이름과 두 줄짜리 이름이 섞이면
+               같은 행에서 가격 줄의 기준선이 어긋난다.
+          */}
+          <p className="line-clamp-2 min-h-[2.7em] text-[15px] font-semibold leading-[1.35] tracking-[-0.01em] text-ink">
+            {head}
+            {/*
+              ⚠️ 화살표는 **마지막 낱말과 한 덩어리로 묶는다.** 그냥 이어 붙이면 이름이
+                 줄 끝에 딱 맞는 제품에서 화살표만 다음 줄로 떨어져(고아), 두 줄로 못
+                 박아 둔 제목 칸이 세 줄이 되면서 같은 행의 가격 기준선이 어긋난다
+                 (실측: 1024px 에서 4개 중 2개가 그랬다).
+            */}
+            <span className="whitespace-nowrap">
+              {tail}
+              <ArrowUpRight
+                className="ml-1 inline-block h-3.5 w-3.5 align-[-1px] text-mute transition-colors group-hover:text-ink"
+                strokeWidth={2.25}
+              />
+            </span>
           </p>
-          <p className="mt-1 text-[12.5px] font-medium text-sub">
+          <p className="mt-0.5 text-[12.5px] font-medium text-sub">
             {/* 소매가 참고값이다 — 바이어의 도매가는 브랜드와 채팅에서 협의한다. */}
             {formatUsd(product.customerPriceUsd)}
             <span className="ml-1 text-mute">retail</span>
@@ -90,7 +110,12 @@ export function ProductCard({
           'before:absolute before:-inset-2 before:content-[""] sm:before:hidden',
           selected
             ? 'border-ink bg-ink text-white'
-            : 'border-white/70 bg-white/70 text-transparent backdrop-blur-sm hover:border-ink/40 hover:text-ink/30',
+            // ⚠️ 미선택 원을 불투명 흰색으로 두면 사진마다 흰 점이 하나씩 찍혀 그리드가
+            //    시끄러워진다. 반대로 완전히 투명하게 두면 흰 배경 사진에서 원이 사라져,
+            //    이 페이지의 주된 동작(체크)을 찾을 수 없다. 어둡게 눌러 둔 안쪽 +
+            //    흰 테두리 + 바깥쪽 잉크 링 1px 이면 밝은 사진과 어두운 사진 양쪽에서
+            //    윤곽만 또렷하게 남는다.
+            : 'border-white/80 bg-ink/25 text-transparent ring-1 ring-ink/15 backdrop-blur-[2px] hover:bg-ink/45 hover:text-white',
         )}
       >
         <Check className="h-3.5 w-3.5" strokeWidth={3} />

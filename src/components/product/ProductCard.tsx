@@ -54,8 +54,11 @@ export function ProductCard({
             accent={accent}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
-          {/* 새 탭으로 나간다는 신호. hover 에서만 드러내 카드가 조용하게 유지된다. */}
-          <span className="pointer-events-none absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-surface/90 px-2 py-1 text-[10.5px] font-semibold text-ink opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+          {/* 새 탭으로 나간다는 신호.
+              ⚠️ 터치 기기에는 hover 가 없다 — hover 전용으로 두면 모바일 사용자는
+                 카드를 누르면 사이트를 벗어난다는 사실을 **끝까지 알 수 없다.**
+                 그래서 좁은 화면에서는 늘 보이고, 포인터가 있는 화면에서만 숨긴다. */}
+          <span className="pointer-events-none absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-surface/90 px-2 py-1 text-[10.5px] font-semibold text-ink backdrop-blur-sm transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
             View on KLOW
             <ArrowUpRight className="h-3 w-3" strokeWidth={2.5} />
           </span>
@@ -80,7 +83,11 @@ export function ProductCard({
           selected ? `Remove ${product.name} from request` : `Add ${product.name} to request`
         }
         className={cn(
+          // ⚠️ 원 자체는 28px 로 두되 `before:-inset-2` 로 히트영역만 44px 로 넓힌다.
+          //    원을 키우면 사진 위 점이 커져 갤러리가 시끄러워지고, 그냥 두면 손가락으로
+          //    누르기엔 너무 작아 카드 본문(= 새 탭으로 이탈)이 대신 눌린다.
           'absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full border transition',
+          'before:absolute before:-inset-2 before:content-[""] sm:before:hidden',
           selected
             ? 'border-ink bg-ink text-white'
             : 'border-white/70 bg-white/70 text-transparent backdrop-blur-sm hover:border-ink/40 hover:text-ink/30',

@@ -171,23 +171,33 @@ export function SampleRequestModal({
                       sizes="44px"
                     />
                   </span>
-                  <span className="min-w-0 flex-1 truncate text-[14px] font-medium text-ink">
-                    {p.name}
-                  </span>
 
-                  {/* 수량은 제품마다 다르다 — 관심 있는 SKU 를 2~3개씩,
-                      나머지는 1개씩 받는 게 실제 샘플 요청의 모습이다. */}
-                  <QtyStepper
-                    value={qtyOf(p.id)}
-                    onChange={(n) => setQty(p.id, n)}
-                    label={p.name}
-                  />
+                  {/*
+                    ⚠️ 좁은 화면에서는 이름과 수량 스테퍼를 **두 줄로 쌓는다.** 한 줄에
+                       두면 360px 에서 이름 칸이 58px 만 남아 제품명이 서너 글자로 잘렸다
+                       (실측). 행이 조금 길어지는 대신 무엇을 요청하는지가 읽힌다.
+                  */}
+                  {/* ⚠️ `items-start` 가 없으면 세로로 쌓인 수량 스테퍼가 stretch 되어
+                      행 폭만큼 늘어난 빈 상자로 보인다(실측 스크린샷에서 잡았다). */}
+                  <div className="flex min-w-0 flex-1 flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
+                    <span className="line-clamp-2 min-w-0 flex-1 text-[14px] font-medium leading-snug text-ink">
+                      {p.name}
+                    </span>
+
+                    {/* 수량은 제품마다 다르다 — 관심 있는 SKU 를 2~3개씩,
+                        나머지는 1개씩 받는 게 실제 샘플 요청의 모습이다. */}
+                    <QtyStepper
+                      value={qtyOf(p.id)}
+                      onChange={(n) => setQty(p.id, n)}
+                      label={p.name}
+                    />
+                  </div>
 
                   <button
                     type="button"
                     aria-label={`Remove ${p.name}`}
                     onClick={() => setIds((prev) => prev.filter((id) => id !== p.id))}
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-mute transition hover:bg-ink/5 hover:text-ink"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-mute transition hover:bg-ink/5 hover:text-ink sm:h-7 sm:w-7"
                   >
                     <X className="h-3.5 w-3.5" strokeWidth={2.5} />
                   </button>
@@ -273,13 +283,16 @@ export function SampleRequestModal({
           ⚠️ 제출 버튼은 모달 하단에 **고정**한다. 이 폼은 제품·연락처·주소를 합쳐
              한 화면을 훌쩍 넘기므로, 흐름에 두면 CTA 가 스크롤 밖으로 밀려
              "다 채웠는데 보낼 방법이 없다"가 된다.
-          ⚠️ `-mx-7 -mb-7 + px-7 pb-7` 은 Modal 의 p-7 을 상쇄해 바닥까지 붙이는 것이다
+          ⚠️ `-mx-N -mb-N + px-N pb-N` 은 Modal 의 안쪽 패딩을 상쇄해 바닥까지 붙이는 것이다
                (BusinessDetailsStep 과 같은 규칙).
-          ⚠️ `-bottom-7` 도 같은 28px 다. sticky 는 스크롤 컨테이너의 **content box**
-             바닥에 붙으므로 bottom-0 이면 패딩만큼(28px) 떠서, 그 틈으로 뒤 내용이
+          ⚠️ `-bottom-N` 도 같은 값이다. sticky 는 스크롤 컨테이너의 **content box**
+             바닥에 붙으므로 bottom-0 이면 패딩만큼 떠서, 그 틈으로 뒤 내용이
              비치고 흰 띠가 남는다(실측: 푸터 하단 905px vs 스크롤 하단 933px).
+          ⚠️ 상쇄 값이 브레이크포인트마다 다르다 — Modal 의 안쪽 패딩이 모바일 20px /
+             데스크탑 28px 라, `-mx/-mb/px/pb/-bottom` **다섯 개를 한 벌로** 함께 바꾼다.
+             바텀시트는 화면 바닥에 붙으므로 홈 인디케이터만큼 아래 여백을 더한다.
         */}
-        <div className="sticky -bottom-7 -mx-7 -mb-7 border-t border-line bg-surface px-7 pb-7 pt-4">
+        <div className="sticky -bottom-5 -mx-5 -mb-5 border-t border-line bg-surface px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-4 sm:-bottom-7 sm:-mx-7 sm:-mb-7 sm:px-7 sm:pb-7">
           <Button type="submit" fullWidth disabled={products.length === 0}>
             Send request
           </Button>

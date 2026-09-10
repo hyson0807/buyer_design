@@ -21,7 +21,7 @@ export function RequestSummary({ request }: { request: SampleRequest }) {
   const current = STEPS.indexOf(request.status);
 
   return (
-    <div className="rounded-xl2 border border-line bg-surface p-6">
+    <div className="rounded-xl2 border border-line bg-surface p-5 sm:p-6">
       <div className="flex items-center gap-3">
         <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-field">
           <SafeImage

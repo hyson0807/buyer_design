@@ -12,8 +12,8 @@ export function DemoFooter() {
   const toast = useToast();
 
   return (
-    <footer className="mt-24 border-t border-line">
-      <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-x-4 gap-y-2 px-6 py-8 text-[12px] text-mute md:px-10 lg:px-15">
+    <footer className="mt-16 border-t border-line md:mt-24">
+      <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-x-4 gap-y-2 px-6 py-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] text-[12px] text-mute md:px-10 md:py-8 lg:px-15">
         <span>KLOW for Buyers — design prototype. Brands and products shown are placeholders.</span>
         <button
           type="button"

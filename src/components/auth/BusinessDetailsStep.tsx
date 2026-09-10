@@ -208,13 +208,15 @@ export function BusinessDetailsStep({
            max-height 에 닿는데, 그러면 CTA 가 스크롤 밖으로 밀려 "다 채웠는데 다음이
            없다"가 된다(실제로 그렇게 보였다). 약관도 같이 고정해야 한다 — 버튼만
            고정하면 비활성 이유(미동의)가 화면 밖에 있어 막다른 길이 된다.
-        ⚠️ `-mx-7 -mb-7 + px-7 pb-7` 은 Modal 의 p-7 을 상쇄해 바닥까지 붙이는 것이다.
-           `-bottom-7` 도 같은 28px 인데 이건 별개 이유다 — sticky 는 스크롤 컨테이너의
+        ⚠️ `-mx-N -mb-N + px-N pb-N` 은 Modal 의 안쪽 패딩을 상쇄해 바닥까지 붙이는 것이다.
+           `-bottom-N` 도 같은 값인데 이건 별개 이유다 — sticky 는 스크롤 컨테이너의
            **content box** 바닥에 붙으므로 bottom-0 이면 패딩만큼 떠서, 그 틈으로 뒤
            내용이 비치고 흰 띠가 남는다(실측: 푸터 하단 905px vs 스크롤 하단 933px).
-           Modal 의 패딩을 바꾸면 이 셋을 함께 바꿔야 한다.
+          ⚠️ 상쇄 값이 브레이크포인트마다 다르다 — Modal 의 안쪽 패딩이 모바일 20px /
+             데스크탑 28px 라, `-mx/-mb/px/pb/-bottom` **다섯 개를 한 벌로** 함께 바꾼다.
+             바텀시트는 화면 바닥에 붙으므로 홈 인디케이터만큼 아래 여백을 더한다.
       */}
-      <div className="sticky -bottom-7 -mx-7 -mb-7 space-y-3 border-t border-line bg-surface px-7 pb-7 pt-4">
+      <div className="sticky -bottom-5 -mx-5 -mb-5 space-y-3 border-t border-line bg-surface px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-4 sm:-bottom-7 sm:-mx-7 sm:-mb-7 sm:px-7 sm:pb-7">
         {step2Done && (
           <label className="flex cursor-pointer items-start gap-2.5 text-[13px] text-sub">
             <input

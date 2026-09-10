@@ -85,7 +85,7 @@ export default function ProfilePage() {
   if (!buyer) {
     return (
       <Shell>
-        <div className="mt-10 rounded-xl2 border border-dashed border-line px-6 py-20 text-center">
+        <div className="mt-8 rounded-xl2 border border-dashed border-line px-5 py-14 text-center sm:mt-10 sm:px-6 sm:py-20">
           <p className="font-display text-[18px] font-semibold text-ink">
             Sign in to see your profile
           </p>
@@ -126,8 +126,8 @@ export default function ProfilePage() {
 
   return (
     <Shell>
-      <header className="mt-8 flex items-center gap-4">
-        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-accent-pale font-display text-[17px] font-bold text-accent-strong">
+      <header className="mt-6 flex items-center gap-3 sm:mt-8 sm:gap-4">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent-pale font-display text-[16px] font-bold text-accent-strong sm:h-14 sm:w-14 sm:text-[17px]">
           {initials(buyer.fullName)}
         </span>
         <div className="min-w-0">
@@ -140,7 +140,7 @@ export default function ProfilePage() {
       </header>
 
       <form
-        className="mt-8 space-y-6"
+        className="mt-6 space-y-5 sm:mt-8 sm:space-y-6"
         onSubmit={(e) => {
           e.preventDefault();
           save();
@@ -299,7 +299,8 @@ export default function ProfilePage() {
           />
         </Card>
 
-        <div className="flex items-center gap-3 pb-4">
+        {/* ⚠️ `flex-wrap` 이 있어야 320px 에서 "Sign out" 이 화면 밖으로 밀리지 않는다. */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pb-4">
           <Button type="submit" disabled={!dirty}>
             Save changes
           </Button>
@@ -330,9 +331,11 @@ export default function ProfilePage() {
 
 function Shell({ children }: { children?: React.ReactNode }) {
   return (
-    <div className="mx-auto max-w-[760px] px-6 pt-14 md:px-10">
+    <div className="mx-auto max-w-[760px] px-6 pb-4 pt-8 md:px-10 md:pt-14">
       <div className="flex items-baseline justify-between gap-4">
-        <h1 className="font-display text-[32px] font-semibold tracking-[-0.03em]">Profile</h1>
+        <h1 className="font-display text-[26px] font-semibold tracking-[-0.03em] sm:text-[32px]">
+          Profile
+        </h1>
         <Link
           href="/requests"
           className="text-[13px] font-medium text-sub underline underline-offset-2 hover:text-ink"
@@ -355,7 +358,7 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-4 rounded-xl2 border border-line bg-surface p-6">
+    <section className="space-y-4 rounded-xl2 border border-line bg-surface p-5 sm:p-6">
       <div>
         <h2 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-mute">{title}</h2>
         {hint && <p className="mt-1 text-[12.5px] text-sub">{hint}</p>}

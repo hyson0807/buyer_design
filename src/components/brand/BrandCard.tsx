@@ -24,9 +24,11 @@ export function BrandCard({ brand, priority }: { brand: BuyerBrand; priority?: b
           className="transition-transform duration-400 group-hover:scale-[1.04]"
         />
       </div>
-      <div className="py-4">
-        <h3 className="font-display text-[15px] font-medium text-ink">{brand.name}</h3>
-        <p className="mt-0.5 text-[12px] text-mute">
+      <div className="py-3 sm:py-4">
+        <h3 className="font-display text-[14px] font-medium text-ink sm:text-[15px]">{brand.name}</h3>
+        {/* ⚠️ 2컬럼 모바일에서 이 줄은 카드 폭(≈150px)을 넘겨 세 줄까지 늘어난다.
+            두 줄로 잘라 카드 높이가 사진마다 들쭉날쭉해지는 것을 막는다. */}
+        <p className="mt-0.5 line-clamp-2 text-[12px] text-mute">
           {brand.categoryKeys.map(categoryLabel).join(' · ')} &middot; MOQ {brand.moqUnits}
         </p>
       </div>

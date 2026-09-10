@@ -80,8 +80,16 @@ export function ChatThread({
   };
 
   return (
-    <div className="flex min-h-[560px] flex-col rounded-xl2 border border-line bg-surface">
-      <div className="flex-1 space-y-4 overflow-y-auto p-6">
+    /*
+      ⚠️ 모바일에서는 카드 높이를 **화면에 맞춰 고정**한다. `min-h` 만 주면 카드가
+         내용만큼 늘어나 입력칸이 페이지 아래로 내려가고, 메시지 목록과 페이지가
+         동시에 스크롤되는 이중 스크롤이 된다. 높이를 못 박아야 입력칸이 늘 카드
+         바닥에 붙어 보인다. `dvh` 는 iOS 주소창이 접혔다 펴질 때를 따라간다.
+      ⚠️ 12rem 은 위쪽 고정 요소(헤더 64 + 페이지 상단 여백 + "All requests" 줄)의
+         합이다. 페이지 상단 여백을 바꾸면 여기도 같이 본다.
+    */
+    <div className="flex h-[calc(100dvh-12rem)] min-h-[420px] flex-col rounded-xl2 border border-line bg-surface lg:h-auto lg:min-h-[560px]">
+      <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
         {thread.messages.map((m) => (
           <Bubble key={m.id} message={m} brand={brand} />
         ))}
@@ -94,7 +102,7 @@ export function ChatThread({
         <div ref={endRef} />
       </div>
 
-      <div className="flex items-end gap-2 border-t border-line p-4">
+      <div className="flex items-end gap-2 border-t border-line p-3 sm:p-4">
         <textarea
           rows={1}
           value={draft}
@@ -106,7 +114,10 @@ export function ChatThread({
               send();
             }
           }}
-          placeholder="Ask about MOQ, pricing, certifications…"
+          /* ⚠️ 플레이스홀더를 더 늘리지 말 것 — 입력칸은 한 줄(44px) 높이인데 전역
+             규칙상 폰트가 16px 로 고정(iOS 확대 방지)이라, 좁은 화면에서는 두 번째
+             줄이 그대로 잘린다. 종전 문구("… , certifications…")가 실제로 잘려 있었다. */
+          placeholder="Ask about MOQ, pricing…"
           className="form-textarea min-h-[44px] resize-none py-3"
         />
         <button
@@ -146,10 +157,10 @@ function Bubble({ message, brand }: { message: ChatMessage; brand: BuyerBrand })
           />
         </span>
       )}
-      <div className={cn('max-w-[78%]', mine && 'text-right')}>
+      <div className={cn('max-w-[80%]', mine && 'text-right')}>
         <div
           className={cn(
-            'whitespace-pre-line rounded-xl2 px-4 py-3 text-[14px] leading-relaxed',
+            'whitespace-pre-line break-words rounded-xl2 px-3.5 py-2.5 text-[14px] leading-relaxed sm:px-4 sm:py-3',
             mine ? 'bg-ink text-white' : 'bg-field text-ink',
           )}
         >

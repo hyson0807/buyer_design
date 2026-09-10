@@ -32,7 +32,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <Ctx.Provider value={value}>
       {children}
-      <div className="pointer-events-none fixed bottom-6 left-1/2 z-[60] flex -translate-x-1/2 flex-col gap-2">
+      {/* ⚠️ 좌우 폭을 제한한다 — 브랜드 상세의 sticky 선택 바 위에 뜨는데, 긴 메시지가
+          가운데 정렬 + translate 라 폭 제한이 없으면 화면 밖으로 넘친다. */}
+      <div className="pointer-events-none fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 z-[60] flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-col items-center gap-2">
         {toasts.map((t) => (
           <div
             key={t.id}

@@ -52,7 +52,7 @@ export default function RequestsPage() {
 
   return (
     <Shell>
-      <ul className="mt-8 divide-y divide-line border-y border-line">
+      <ul className="mt-6 divide-y divide-line border-y border-line sm:mt-8">
         {requests.map((r) => {
           const brand = getBrandById(r.brandId);
           const thread = threads.find((t) => t.requestId === r.id);
@@ -65,8 +65,11 @@ export default function RequestsPage() {
 
           return (
             <li key={r.id}>
-              <Link href={`/requests/${r.id}`} className="flex items-center gap-4 py-5 transition-colors hover:bg-ink/[0.02]">
-                <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-field">
+              <Link
+                href={`/requests/${r.id}`}
+                className="flex items-center gap-3 py-4 transition-colors hover:bg-ink/[0.02] sm:gap-4 sm:py-5"
+              >
+                <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-field sm:h-12 sm:w-12">
                   <SafeImage
                     src={brand?.logosCircle[0]}
                     alt={brand?.name ?? ''}
@@ -77,7 +80,7 @@ export default function RequestsPage() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="truncate font-display text-[16px] font-semibold text-ink">
+                    <p className="truncate font-display text-[15px] font-semibold text-ink sm:text-[16px]">
                       {brand?.name}
                     </p>
                     {unread && <span className="h-2 w-2 shrink-0 rounded-full bg-accent" />}
@@ -86,10 +89,10 @@ export default function RequestsPage() {
                     {last ? last.text.split('\n')[0] : `${r.items.length} items requested`}
                   </p>
                 </div>
-                <div className="flex shrink-0 flex-col items-end gap-1.5">
+                <div className="flex shrink-0 flex-col items-end gap-1">
                   <span
                     className={cn(
-                      'rounded-full px-2.5 py-1 text-[11.5px] font-semibold capitalize',
+                      'rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize sm:px-2.5 sm:py-1 sm:text-[11.5px]',
                       STATUS_STYLE[r.status],
                     )}
                   >
@@ -110,8 +113,10 @@ export default function RequestsPage() {
 
 function Shell({ children }: { children?: React.ReactNode }) {
   return (
-    <div className="mx-auto max-w-[900px] px-6 pt-14 md:px-10">
-      <h1 className="font-display text-[32px] font-semibold tracking-[-0.03em]">My requests</h1>
+    <div className="mx-auto max-w-[900px] px-6 pt-8 md:px-10 md:pt-14">
+      <h1 className="font-display text-[26px] font-semibold tracking-[-0.03em] sm:text-[32px]">
+        My requests
+      </h1>
       {children}
     </div>
   );
@@ -127,7 +132,7 @@ function Empty({
   action: React.ReactNode;
 }) {
   return (
-    <div className="mt-10 rounded-xl2 border border-dashed border-line px-6 py-20 text-center">
+    <div className="mt-8 rounded-xl2 border border-dashed border-line px-5 py-14 text-center sm:mt-10 sm:px-6 sm:py-20">
       <p className="font-display text-[18px] font-semibold text-ink">{title}</p>
       <p className="mx-auto mt-2 max-w-[360px] text-[14px] text-sub">{body}</p>
       <div className="mt-6 flex justify-center">{action}</div>

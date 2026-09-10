@@ -15,6 +15,10 @@ npm run check:images # 목데이터의 원격 이미지 URL 전수 검증
 
 포트 3003 은 admin(3000) · web(3001) · brand(3002) · server(4000) 과 겹치지 않게 고른 값이다.
 
+디자인 규약은 [`DESIGN.md`](./DESIGN.md) 에 있다 — 색·타이포·라운딩 같은 **값**의 정본은
+`globals.css` + `tailwind.config.ts` 이고, DESIGN.md 는 **왜 그 값인지와 하지 말 것**을
+갖는다(둘이 어긋나면 코드가 맞다). 새 화면을 만들거나 `klow_buyer` 로 이식할 때 먼저 읽을 것.
+
 ## 화면
 
 | 라우트 | 내용 |

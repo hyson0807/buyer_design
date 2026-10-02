@@ -74,8 +74,8 @@ export function Modal({
           'relative w-full overflow-y-auto bg-surface shadow-pop',
           // 모바일: 바닥에 붙는 시트(위 모서리만 둥글게 · 좌우 테두리 없음 — 화면 끝까지
           // 닿는 시트에 세로 실선이 남으면 카드를 억지로 늘린 것처럼 보인다)
-          'max-h-[92dvh] rounded-t-xl2 border-t border-line p-5 animate-slide-up',
-          'sm:max-h-[calc(100dvh-2rem)] sm:rounded-xl2 sm:border sm:p-7 sm:animate-pop',
+          'max-h-[92dvh] rounded-none border-t border-line p-5 animate-slide-up',
+          'sm:max-h-[calc(100dvh-2rem)] sm:border sm:p-7 sm:animate-pop',
           SIZE[size],
         )}
       >

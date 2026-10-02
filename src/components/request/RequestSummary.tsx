@@ -23,7 +23,7 @@ export function RequestSummary({ request }: { request: SampleRequest }) {
   return (
     /* ⚠️ `lg:min-h-full` — 상세 화면에서 이 카드는 채팅과 같은 높이의 칸에 놓인다.
           안 주면 내용이 짧을 때 카드만 짧아져 두 카드의 바닥이 어긋난다. */
-    <div className="rounded-xl2 border border-line bg-surface p-5 sm:p-6 lg:min-h-full">
+    <div className="rounded-none border border-line bg-surface p-5 sm:p-6 lg:min-h-full">
       <div className="flex items-center gap-3">
         <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-field">
           <SafeImage

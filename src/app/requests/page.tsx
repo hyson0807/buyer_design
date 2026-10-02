@@ -99,7 +99,7 @@ export default function RequestsPage() {
                 */}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="truncate font-display text-[15px] font-semibold text-ink sm:text-[16px]">
+                    <p className="truncate font-display text-[16px] font-semibold text-ink">
                       {brand?.name}
                     </p>
                     {unread && <span className="h-2 w-2 shrink-0 rounded-full bg-accent" />}
@@ -128,7 +128,7 @@ export default function RequestsPage() {
       {/*
         목록 다음의 마무리 줄. 장식이 아니라 실제 다음 행동이다 — 요청 목록까지 온
         사람이 여기서 하고 싶은 일은 대개 "또 하나 요청하기"인데, 그 길이 헤더의
-        `Brands` 뿐이면 페이지가 목적지 없이 끝난다.
+        워드마크뿐이면 페이지가 목적지 없이 끝난다.
         ⚠️ 덤으로 짧은 목록이 큰 화면에서 남기던 빈 사각형도 이 줄이 닫는다.
       */}
       <p className="mt-8 text-[13px] text-sub">
@@ -146,7 +146,7 @@ function Shell({ children }: { children?: React.ReactNode }) {
     /* ⚠️ 900px 로 두면 메시지 끝과 오른쪽 시각 사이에 300px 넘는 빈 구간이 생겨
           행이 양끝으로 벌어져 보인다. 아바타 + 세 줄이 편히 들어가는 폭은 720px 이다. */
     <div className="mx-auto max-w-[720px] px-6 pt-8 md:px-10 md:pt-14">
-      <h1 className="font-display text-[26px] font-semibold tracking-[-0.03em] sm:text-[32px]">
+      <h1 className="font-display text-[28px] font-semibold tracking-[-0.01em] sm:text-[36px]">
         My requests
       </h1>
       {children}

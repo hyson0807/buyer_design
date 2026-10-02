@@ -15,7 +15,9 @@ import {
   toShippingAddress,
   type AddressForm,
 } from '@/components/address/ShippingAddressFields';
-import { getBestsellers, getProductsByIds } from '@/lib/mock-brands';
+import { getBestsellers, getProductsByIds, wholesaleCents } from '@/lib/mock-brands';
+import { formatUsd } from '@/lib/format';
+import { FREE_SHIPPING_SKUS, skusToFreeShipping } from '@/lib/sampling';
 import { openingMessage } from '@/lib/auto-reply';
 import { useAppActions, useBuyer } from '@/lib/store';
 import type { BuyerBrand, ChatMessage, SampleRequest } from '@/lib/types';
@@ -46,7 +48,6 @@ export function SampleRequestModal({
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState<AddressForm>(EMPTY_ADDRESS);
   const [message, setMessage] = useState('');
-  const [coversShipping, setCoversShipping] = useState(false);
 
   /**
    * 열릴 때마다 선택과 배송지를 다시 맞춘다.
@@ -69,6 +70,13 @@ export function SampleRequestModal({
 
   const products = useMemo(() => getProductsByIds(brand.id, ids), [brand.id, ids]);
   const qtyOf = (id: string) => qtyById[id] ?? 1;
+  /**
+   * 무료배송은 **SKU 수** 기준이다(수량 합이 아니다) — 같은 제품 5개는 한 SKU 다.
+   * 체크박스로 "배송비는 내가 낼게요"를 묻던 자리를 정책이 대신한다: 5 SKU 미만이면
+   * 바이어가 배송비를 낸다.
+   */
+  const remaining = skusToFreeShipping(ids.length);
+  const coversShipping = remaining > 0;
 
   if (!open || !buyer) return null;
 
@@ -121,7 +129,7 @@ export function SampleRequestModal({
     <Modal open onClose={onClose} labelledBy="request-modal-title" size="lg">
       <h2
         id="request-modal-title"
-        className="mb-1 font-display text-[20px] font-bold tracking-[-0.02em]"
+        className="mb-1 pr-8 font-display text-[22px] font-semibold tracking-[-0.01em]"
       >
         Request samples
       </h2>
@@ -151,7 +159,7 @@ export function SampleRequestModal({
             // 아무것도 안 고른 사람에게 필요한 건 목록이 아니라 한 번의 채움이다.
             // ⚠️ 점선 테두리를 쓰지 않는다 — 점선은 "여기에 끌어다 놓으라"는 뜻인데
             //    여기서 할 일은 드래그가 아니라 뒤 화면에서 고르거나 버튼을 누르는 것이다.
-            <div className="rounded-[10px] bg-field px-4 py-5 text-center">
+            <div className="rounded-none bg-field px-4 py-5 text-center">
               <p className="text-[13px] text-sub">
                 Nothing picked yet — close this and tick products, or start from the shortlist.
               </p>
@@ -177,7 +185,7 @@ export function SampleRequestModal({
             <ul className="divide-y divide-line border-t border-line">
               {products.map((p) => (
                 <li key={p.id} className="flex items-center gap-3 py-2.5">
-                  <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] bg-field">
+                  <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-none bg-field">
                     <SafeImage
                       src={p.image}
                       alt={p.name}
@@ -195,8 +203,11 @@ export function SampleRequestModal({
                   {/* ⚠️ `items-start` 가 없으면 세로로 쌓인 수량 스테퍼가 stretch 되어
                       행 폭만큼 늘어난 빈 상자로 보인다(실측 스크린샷에서 잡았다). */}
                   <div className="flex min-w-0 flex-1 flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
-                    <span className="line-clamp-2 min-w-0 flex-1 text-[14px] font-medium leading-snug text-ink">
-                      {p.name}
+                    <span className="min-w-0 flex-1">
+                      <span className="line-clamp-2 text-[14px] leading-snug text-ink">{p.name}</span>
+                      <span className="mt-0.5 block text-[12px] tabular-nums text-sub">
+                        {formatUsd(wholesaleCents(p))} wholesale
+                      </span>
                     </span>
 
                     {/* 수량은 제품마다 다르다 — 관심 있는 SKU 를 2~3개씩,
@@ -229,7 +240,7 @@ export function SampleRequestModal({
              주소를 돌려줬을 때 그 자리에서 경고할 수 있다. 순서를 바꾸지 말 것.
         */}
         <section className="space-y-4 border-t border-line pt-6">
-          <h3 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-mute">
+          <h3 className="text-[13px] font-semibold text-ink">
             Contact
           </h3>
 
@@ -259,7 +270,7 @@ export function SampleRequestModal({
         </section>
 
         <section className="space-y-4 border-t border-line pt-6">
-          <h3 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-mute">
+          <h3 className="text-[13px] font-semibold text-ink">
             Shipping address
           </h3>
           {/* 프로필 페이지의 기본 배송지와 **같은 컴포넌트**다 — 두 화면이 각자 그리면
@@ -282,17 +293,8 @@ export function SampleRequestModal({
               onChange={(e) => setMessage(e.target.value)}
             />
           </Field>
-
-          <label className="flex cursor-pointer items-center gap-2.5 text-[13px] text-sub">
-            <input
-              type="checkbox"
-              checked={coversShipping}
-              onChange={(e) => setCoversShipping(e.target.checked)}
-              className="h-4 w-4 accent-[#7C3AED]"
-            />
-            I&apos;ll cover courier costs
-          </label>
         </section>
+
 
         {/*
           ⚠️ 제출 버튼은 모달 하단에 **고정**한다. 이 폼은 제품·연락처·주소를 합쳐
@@ -308,6 +310,31 @@ export function SampleRequestModal({
              바텀시트는 화면 바닥에 붙으므로 홈 인디케이터만큼 아래 여백을 더한다.
         */}
         <div className="sticky -bottom-5 -mx-5 -mb-5 border-t border-line bg-surface px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-4 sm:-bottom-7 sm:-mx-7 sm:-mb-7 sm:px-7 sm:pb-7">
+          {/* 샘플 합계 + 배송 — 제출 직전에 "얼마를, 배송비는 누가"를 한 번에 확인한다. */}
+          {products.length > 0 && (
+            <dl className="mb-4 space-y-1 text-[13px]">
+              <div className="flex justify-between gap-4">
+                <dt className="text-sub">Samples at wholesale</dt>
+                <dd className="tabular-nums text-ink">
+                  {formatUsd(products.reduce((sum, p) => sum + wholesaleCents(p) * qtyOf(p.id), 0))}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-sub">
+                  Shipping
+                  {remaining > 0 && (
+                    <span className="text-mute">
+                      {' '}
+                      · add {remaining} more {remaining === 1 ? 'SKU' : 'SKUs'} to ship free
+                    </span>
+                  )}
+                </dt>
+                <dd className="shrink-0 text-ink">
+                  {remaining === 0 ? `Free · ${FREE_SHIPPING_SKUS}+ SKUs` : 'Quoted by brand'}
+                </dd>
+              </div>
+            </dl>
+          )}
           <Button type="submit" fullWidth disabled={products.length === 0}>
             Send request
           </Button>
@@ -327,7 +354,7 @@ function QtyStepper({
   label: string;
 }) {
   return (
-    <div className="flex shrink-0 items-center rounded-[10px] border border-line">
+    <div className="flex shrink-0 items-center rounded-none border border-line">
       <StepButton
         ariaLabel={`Decrease quantity of ${label}`}
         disabled={value <= 1}

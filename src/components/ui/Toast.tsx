@@ -50,7 +50,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="pointer-events-auto flex items-center gap-2 rounded-[10px] bg-ink px-4 py-2.5 text-sm font-semibold text-white shadow-pop"
+            className="pointer-events-auto flex items-center gap-2 rounded-none bg-ink px-4 py-2.5 text-sm font-semibold text-white shadow-pop"
           >
             <span
               className={

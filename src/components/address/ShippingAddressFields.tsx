@@ -103,7 +103,7 @@ export function ShippingAddressFields({
         >
           {/* 국가번호는 국가 선택에서 파생된다 — 손님이 따로 고르지 않는다. */}
           <div className="flex items-stretch">
-            <span className="flex min-w-[62px] shrink-0 items-center justify-center rounded-l-[10px] border border-r-0 border-line bg-field px-3 text-[14px] font-semibold text-ink">
+            <span className="flex min-w-[62px] shrink-0 items-center justify-center rounded-none border border-r-0 border-line bg-field px-3 text-[14px] font-semibold text-ink">
               {country.dial}
             </span>
             <input

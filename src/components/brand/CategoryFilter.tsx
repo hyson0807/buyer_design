@@ -39,10 +39,10 @@ export function CategoryFilter({
       type="button"
       onClick={() => onSelect(key)}
       className={cn(
-        'relative shrink-0 py-2 text-[14px] transition-colors',
+        'relative shrink-0 py-2 text-[14px] tracking-[0.01em] transition-colors max-md:py-1.5 max-md:text-[13px]',
         isOn(key)
-          ? 'font-semibold text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-ink'
-          : 'font-normal text-sub hover:text-ink',
+          ? 'font-normal text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-ink'
+          : 'font-light text-sub hover:text-ink',
       )}
     >
       {label}

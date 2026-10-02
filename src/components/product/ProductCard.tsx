@@ -2,7 +2,7 @@
 
 import { ArrowUpRight, Check } from 'lucide-react';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { formatUsd } from '@/lib/format';
+import { SamplePrice } from '@/components/product/SamplePrice';
 import { productUrl } from '@/lib/klow-web';
 import { cn } from '@/lib/utils';
 import type { ProductListItem } from '@/lib/types';
@@ -48,8 +48,8 @@ export function ProductCard({
       >
         <div
           className={cn(
-            'relative aspect-[4/4.6] overflow-hidden rounded-[10px] bg-field transition-shadow',
-            selected && 'ring-2 ring-ink ring-offset-2 ring-offset-bg',
+            'relative aspect-[4/4.6] overflow-hidden rounded-none bg-field transition-shadow',
+            selected && 'outline outline-[1.5px] outline-offset-[3px] outline-ink',
           )}
         >
           <SafeImage
@@ -60,7 +60,7 @@ export function ProductCard({
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         </div>
-        <div className="pt-2.5">
+        <div className="pt-3.5">
           {/*
             "새 탭으로 나간다"는 신호는 **제품명 옆 화살표 하나**다.
             ⚠️ 예전에는 사진 위에 흰 알약 배지("View on KLOW")를 얹었는데, 터치 기기에는
@@ -71,7 +71,7 @@ export function ProductCard({
             ⚠️ 제목 자리 높이를 두 줄로 못 박는다. 한 줄짜리 이름과 두 줄짜리 이름이 섞이면
                같은 행에서 가격 줄의 기준선이 어긋난다.
           */}
-          <p className="line-clamp-2 min-h-[2.7em] text-[15px] font-semibold leading-[1.35] tracking-[-0.01em] text-ink">
+          <p className="line-clamp-2 min-h-[2.7em] text-[14px] leading-[1.35] text-ink sm:text-[14.5px]">
             {head}
             {/*
               ⚠️ 화살표는 **마지막 낱말과 한 덩어리로 묶는다.** 그냥 이어 붙이면 이름이
@@ -87,11 +87,8 @@ export function ProductCard({
               />
             </span>
           </p>
-          <p className="mt-0.5 text-[12.5px] font-medium text-sub">
-            {/* 소매가 참고값이다 — 바이어의 도매가는 브랜드와 채팅에서 협의한다. */}
-            {formatUsd(product.customerPriceUsd)}
-            <span className="ml-1 text-mute">retail</span>
-          </p>
+          {/* 도매가(= 샘플가)가 주인공, 소매가는 RRP 참고값 — SamplePrice 주석 참고. */}
+          <SamplePrice product={product} />
         </div>
       </a>
 
@@ -106,7 +103,7 @@ export function ProductCard({
           // ⚠️ 원 자체는 28px 로 두되 `before:-inset-2` 로 히트영역만 44px 로 넓힌다.
           //    원을 키우면 사진 위 점이 커져 갤러리가 시끄러워지고, 그냥 두면 손가락으로
           //    누르기엔 너무 작아 카드 본문(= 새 탭으로 이탈)이 대신 눌린다.
-          'absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full border transition',
+          'absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center border transition',
           'before:absolute before:-inset-2 before:content-[""] sm:before:hidden',
           selected
             ? 'border-ink bg-ink text-white'
@@ -115,7 +112,7 @@ export function ProductCard({
             //    이 페이지의 주된 동작(체크)을 찾을 수 없다. 어둡게 눌러 둔 안쪽 +
             //    흰 테두리 + 바깥쪽 잉크 링 1px 이면 밝은 사진과 어두운 사진 양쪽에서
             //    윤곽만 또렷하게 남는다.
-            : 'border-white/80 bg-ink/25 text-transparent ring-1 ring-ink/15 backdrop-blur-[2px] hover:bg-ink/45 hover:text-white',
+            : 'border-white bg-ink/20 text-transparent ring-1 ring-ink/15 backdrop-blur-[2px] hover:bg-ink/50 hover:text-white',
         )}
       >
         <Check className="h-3.5 w-3.5" strokeWidth={3} />

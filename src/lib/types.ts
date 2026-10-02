@@ -1,4 +1,5 @@
 import type { CategoryKey } from '@/lib/categories';
+import type { MatchAnswers, NeedKey } from '@/lib/concierge';
 
 /* ────────────────────────────────────────────────────────────────────────────
    klow_server DTO 1:1 미러. 출처: klow_web/src/lib/types.ts.
@@ -70,6 +71,14 @@ export type BuyerBrandExtras = {
   certifications: string[];
   exportMarkets: string[];
   yearFounded: number;
+  /** 컨시어지 매칭용 — 이 브랜드가 답하는 고객 니즈. */
+  skinNeeds: NeedKey[];
+  /** 이미 여러 시장에 자리 잡은 브랜드인가, 아직 덜 알려진 브랜드인가. */
+  tier: 'established' | 'emerging';
+  /** 신규 시장에 독점 대리점을 열어 줄 여지가 있는가. */
+  exclusiveOpen: boolean;
+  /** 도매가 = 소매가 × 이 값. 샘플도 이 값으로 판다. */
+  wholesaleRatio: number;
 };
 
 export type BuyerBrand = Brand & BuyerBrandExtras;
@@ -177,5 +186,23 @@ export type ChatThread = {
   lastReadAt: string;
 };
 
+/** 컨시어지에서 마지막으로 답한 내용. 홈의 "Selected for you" 를 다시 그리는 데 쓴다. */
+export type MatchProfile = (MatchAnswers & { answeredAt: string }) | null;
+
 /** 미로그인 상태에서 "Request Samples" 를 누른 순간의 의도. 로그인 후 소비된다. */
 export type PendingIntent = { brandId: string; productIds: string[] } | null;
+
+/**
+ * 카탈로그에 없는 브랜드·제품을 찾아 달라는 요청. KLOW 가 한국에서 대신 수소문한다.
+ * @PORT(schema): 서버에 대응 테이블이 없다(소싱 요청 테이블 신설 대상).
+ */
+export type BrandWish = {
+  id: string;
+  /** 브랜드명 또는 제품명 — 바이어가 아는 만큼만. */
+  query: string;
+  /** 제품 페이지·인스타그램 등 참고 링크. */
+  link?: string;
+  note?: string;
+  status: 'searching' | 'found';
+  createdAt: string;
+};

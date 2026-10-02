@@ -12,6 +12,8 @@ import { categoryLabel } from '@/lib/categories';
 import { getProducts } from '@/lib/mock-brands';
 import { storefrontUrl } from '@/lib/klow-web';
 import { useAppActions, useAppState, useBuyer } from '@/lib/store';
+import { FREE_SHIPPING_SKUS, skusToFreeShipping } from '@/lib/sampling';
+import { cn } from '@/lib/utils';
 import type { BuyerBrand } from '@/lib/types';
 
 export function BrandDetail({ brand }: { brand: BuyerBrand }) {
@@ -52,11 +54,13 @@ export function BrandDetail({ brand }: { brand: BuyerBrand }) {
     setRequestOpen(true);
   };
 
+  const remaining = skusToFreeShipping(selected.length);
+
   return (
     <div className="mx-auto max-w-[1400px] px-6 pb-28 pt-6 md:px-10 md:pb-24 md:pt-10 lg:px-15">
       <Link
         href="/"
-        className="inline-flex items-center gap-1.5 text-[13px] font-medium text-sub transition-colors hover:text-ink"
+        className="inline-flex items-center gap-1.5 text-[14px] font-light text-sub transition-colors hover:text-ink"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={2} />
         Back to brands
@@ -78,10 +82,10 @@ export function BrandDetail({ brand }: { brand: BuyerBrand }) {
       */}
       <div className="mt-5 grid grid-cols-1 gap-8 md:mt-7 md:gap-10 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:gap-x-14 lg:gap-y-8">
         <header className="lg:col-start-2 lg:row-start-1">
-          <h1 className="font-display text-[30px] font-semibold leading-[1.1] tracking-[-0.03em] sm:text-[38px] lg:text-[42px]">
+          <h1 className="font-display text-[34px] font-semibold leading-[1.1] tracking-[-0.02em] sm:text-[44px] lg:text-[52px]">
             {brand.name}
           </h1>
-          <p className="mt-3 max-w-[620px] text-[15px] leading-relaxed text-sub sm:text-[16px]">
+          <p className="mt-4 max-w-[620px] text-[15px] font-light leading-relaxed text-sub sm:text-[16px]">
             {brandIntro(brand)}
           </p>
           {/*
@@ -107,7 +111,7 @@ export function BrandDetail({ brand }: { brand: BuyerBrand }) {
         </div>
 
         <div className="lg:col-start-2 lg:row-start-2">
-          <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em] text-mute">
+          <h2 className="font-display text-[15px] font-semibold text-ink">
             Brand facts
           </h2>
           <dl className="mt-4">
@@ -132,16 +136,19 @@ export function BrandDetail({ brand }: { brand: BuyerBrand }) {
                 href={storefront}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-[10px] border border-line bg-surface px-4 text-[15px] font-semibold text-ink transition-all hover:border-ink/40 active:scale-[0.99] sm:flex-none sm:px-5"
+                className="inline-flex h-[52px] flex-1 items-center justify-center gap-1.5 whitespace-nowrap border border-ink/20 px-4 text-[14px] tracking-[0.04em] text-ink transition-colors hover:border-ink sm:flex-none sm:px-8"
               >
                 View storefront
                 <ArrowUpRight className="h-4 w-4" strokeWidth={2.25} />
               </a>
             )}
           </div>
-          <p className="mt-2.5 text-[12.5px] text-mute">
-            Samples are free. The brand ships from Korea and answers you here.
-          </p>
+          {/* 샘플 정책 세 줄 — 히어로의 숫자 줄과 같은 말을 이 브랜드 문맥에서 다시 한다. */}
+          <ul className="mt-6 grid grid-cols-3 bg-surface text-[12.5px] font-light leading-snug text-sub">
+            <li className="px-4 py-4"><span className="mb-0.5 block font-display text-[14px] font-semibold text-ink">Wholesale price</span>on every sample</li>
+            <li className="border-l border-line px-4 py-4"><span className="mb-0.5 block font-display text-[14px] font-semibold text-ink">From 1 unit</span>no minimum per SKU</li>
+            <li className="border-l border-line px-4 py-4"><span className="mb-0.5 block font-display text-[14px] font-semibold text-ink">{FREE_SHIPPING_SKUS} SKUs</span>ship free from Korea</li>
+          </ul>
         </div>
       </div>
 
@@ -149,7 +156,7 @@ export function BrandDetail({ brand }: { brand: BuyerBrand }) {
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           {/* ⚠️ 제목 뒤에 숫자만 붙이면("Products 5") 제목의 일부처럼 붙어 읽힌다.
                  개수는 오른쪽 안내줄이 이미 문장으로 말하므로 여기서 뺀다. */}
-          <h2 className="font-display text-[20px] font-semibold tracking-[-0.02em] sm:text-[22px]">
+          <h2 className="font-display text-[24px] font-semibold tracking-[-0.01em] sm:text-[28px]">
             Products
           </h2>
           {/*
@@ -157,9 +164,8 @@ export function BrandDetail({ brand }: { brand: BuyerBrand }) {
             카드 위 "View on KLOW" 배지가 이미 말하므로, 여기서는 전자만 알려 준다 —
             둘 다 적으면 한 줄이 두 줄로 접히고 문장이 안내문처럼 길어진다.
           */}
-          <p className="text-[12.5px] text-mute">
-            <span className="tabular-nums">{products.length}</span> products · tick the ones you
-            want sampled
+          <p className="text-[13px] text-sub">
+            Tick to sample at wholesale · {FREE_SHIPPING_SKUS} SKUs ship free
           </p>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-x-3 gap-y-6 sm:mt-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-8 lg:grid-cols-4">
@@ -194,13 +200,40 @@ export function BrandDetail({ brand }: { brand: BuyerBrand }) {
                 tailwind-merge 가 아니라 단순 join 이다.)
           */}
           <div className="mx-auto flex max-w-[1400px] items-center gap-1.5 px-5 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:gap-3 sm:px-6 sm:py-4 sm:pb-[calc(1rem+env(safe-area-inset-bottom))] md:px-10 lg:px-15">
-            <p className="min-w-0 flex-1 text-[13px] font-semibold leading-tight text-ink sm:text-[14px]">
-              <span className="tabular-nums">{selected.length}</span>{' '}
-              <span className="hidden sm:inline">
-                {selected.length === 1 ? 'product' : 'products'}{' '}
-              </span>
-              selected
-            </p>
+            {/*
+              무료배송까지의 거리 — 이 플랫폼의 두 번째 약속을 "지금 내 선택"으로 번역한다.
+              다섯 칸 눈금 + 한 줄 문장. 퍼센트 바·축하 애니메이션·색은 쓰지 않는다.
+              ⚠️ 좁은 화면에서는 문장을 줄인다(`2 more` / `Free shipping`) — 360px 에서
+                 버튼 둘과 한 줄에 들어가야 바 높이가 부풀지 않는다.
+            */}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[13px] font-medium leading-tight text-ink sm:text-[14px]">
+                <span className="tabular-nums">{selected.length}</span>{' '}
+                <span className="hidden sm:inline">
+                  {selected.length === 1 ? 'SKU' : 'SKUs'}{' '}
+                </span>
+                selected
+                <span className="font-normal text-sub">
+                  {' · '}
+                  {remaining === 0 ? (
+                    'Free shipping'
+                  ) : (
+                    <>
+                      <span className="tabular-nums">{remaining}</span> more
+                      <span className="hidden sm:inline"> for free shipping</span>
+                    </>
+                  )}
+                </span>
+              </p>
+              <div className="mt-2 flex max-w-[180px] gap-1" aria-hidden>
+                {Array.from({ length: FREE_SHIPPING_SKUS }, (_, i) => (
+                  <span
+                    key={i}
+                    className={cn('h-[2px] flex-1', i < selected.length ? 'bg-ink' : 'bg-line')}
+                  />
+                ))}
+              </div>
+            </div>
             <Button variant="ghost" size="sm" onClick={() => setSelected([])}>
               Clear
             </Button>
@@ -235,8 +268,8 @@ function Fact({ label, value }: { label: string; value: string }) {
   if (!value) return null;
   return (
     <div className="flex items-baseline justify-between gap-6 border-b border-line py-2.5 last:border-b-0 sm:py-3">
-      <dt className="shrink-0 text-[13px] text-sub sm:text-[14px]">{label}</dt>
-      <dd className="text-right text-[13.5px] font-medium text-ink sm:text-[14px]">{value}</dd>
+      <dt className="shrink-0 text-[13px] text-sub">{label}</dt>
+      <dd className="text-right text-[13.5px] text-ink">{value}</dd>
     </div>
   );
 }

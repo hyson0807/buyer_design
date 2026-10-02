@@ -9,9 +9,11 @@ import {
   type Dispatch,
 } from 'react';
 import type {
+  BrandWish,
   Buyer,
   ChatMessage,
   ChatThread,
+  MatchProfile,
   PendingIntent,
   SampleRequest,
   SampleRequestStatus,
@@ -53,6 +55,10 @@ export type AppState = {
    *    이메일부터 물어 스스로 갈래를 정하므로 여는 쪽은 열지 말지만 정한다.
    */
   authOpen: boolean;
+  /** 매칭(/match) 답. 홈의 "Selected for you" 를 새로고침 뒤에도 다시 그린다. */
+  match: MatchProfile;
+  /** 카탈로그에 없는 브랜드를 찾아 달라는 요청(/request-brand). */
+  wishes: BrandWish[];
   /** ⚠️ localStorage 를 읽기 전에는 false. 이 값으로 렌더를 가려 hydration mismatch 를 막는다. */
   hydrated: boolean;
 };
@@ -64,6 +70,8 @@ const EMPTY: AppState = {
   pendingIntent: null,
   savedProfiles: {},
   authOpen: false,
+  match: null,
+  wishes: [],
   hydrated: false,
 };
 
@@ -81,6 +89,8 @@ type Action =
   | { type: 'ADD_MESSAGE'; message: ChatMessage }
   | { type: 'ADVANCE_STATUS'; requestId: string; status: SampleRequestStatus; trackingNo?: string }
   | { type: 'MARK_READ'; requestId: string }
+  | { type: 'SET_MATCH'; match: MatchProfile }
+  | { type: 'ADD_WISH'; wish: BrandWish }
   | { type: 'RESET_DEMO' };
 
 function reducer(state: AppState, action: Action): AppState {
@@ -158,6 +168,10 @@ function reducer(state: AppState, action: Action): AppState {
           t.requestId === action.requestId ? { ...t, lastReadAt: new Date().toISOString() } : t,
         ),
       };
+    case 'SET_MATCH':
+      return { ...state, match: action.match };
+    case 'ADD_WISH':
+      return { ...state, wishes: [action.wish, ...state.wishes] };
     case 'RESET_DEMO':
       return { ...EMPTY, hydrated: true };
     default:
@@ -184,6 +198,8 @@ export type Actions = {
   addMessage: (message: ChatMessage) => void;
   advanceStatus: (requestId: string, status: SampleRequestStatus, trackingNo?: string) => void;
   markRead: (requestId: string) => void;
+  setMatch: (match: MatchProfile) => void;
+  addWish: (wish: BrandWish) => void;
   resetDemo: () => void;
 };
 
@@ -201,6 +217,8 @@ export function buildActions(dispatch: Dispatch<Action>): Actions {
     advanceStatus: (requestId, status, trackingNo) =>
       dispatch({ type: 'ADVANCE_STATUS', requestId, status, trackingNo }),
     markRead: (requestId) => dispatch({ type: 'MARK_READ', requestId }),
+    setMatch: (match) => dispatch({ type: 'SET_MATCH', match }),
+    addWish: (wish) => dispatch({ type: 'ADD_WISH', wish }),
     resetDemo: () => dispatch({ type: 'RESET_DEMO' }),
   };
 }

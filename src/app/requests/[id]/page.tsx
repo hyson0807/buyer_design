@@ -26,7 +26,7 @@ export default function RequestDetailPage({ params }: { params: { id: string } }
 
       {/* hydrate 전에는 "없음"을 단정할 수 없다 — localStorage 를 아직 안 읽었다. */}
       {!hydrated ? (
-        <div className="mt-8 h-[420px] animate-pulse rounded-xl2 bg-field md:mt-10 md:h-[560px]" />
+        <div className="mt-8 h-[420px] animate-pulse rounded-none bg-field md:mt-10 md:h-[560px]" />
       ) : !request || !brand ? (
         <p className="mt-16 text-center text-[14px] text-sub">
           This request no longer exists.{' '}
@@ -50,7 +50,7 @@ export default function RequestDetailPage({ params }: { params: { id: string } }
             ⚠️ 스크롤은 **패널 바깥 래퍼**가 갖는다 — 카드 자체에 걸면 안쪽 패딩까지
                같이 굴러 머리글이 테두리에 붙는다.
           */}
-          <div className="order-2 lg:order-none lg:h-[calc(100dvh-16rem)] lg:min-h-[520px] lg:overflow-y-auto lg:rounded-xl2">
+          <div className="order-2 lg:order-none lg:h-[calc(100dvh-16rem)] lg:min-h-[520px] lg:overflow-y-auto">
             <RequestSummary request={request} />
           </div>
           <div className="order-1 lg:order-none">

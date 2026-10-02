@@ -6,8 +6,7 @@ import { cn } from '@/lib/utils';
  * 굳어져 있다(= 프리미티브가 필요했다는 증거). 여기선 같은 CTA 가 브랜드 상세 헤더 ·
  * sticky 선택 바 · 모달 제출 · 빈 상태 · 채팅 전송 등 6곳에 나오므로 컴포넌트로 둔다.
  *
- * ⚠️ primary 배경은 accent(#8F5CFF)가 아니라 **accent-strong(#7C3AED)** 이다 —
- *    흰 글씨 대비가 4.08:1(미달) → 5.70:1(통과)로 갈린다.
+ * 직각 · 검정 면 · 14px semibold + 0.04em 자간. 대문자로 만들지 않는다.
  */
 type Variant = 'primary' | 'outline' | 'ghost';
 type Size = 'md' | 'sm';
@@ -20,15 +19,17 @@ type Size = 'md' | 'sm';
  */
 const DISABLED = 'disabled:bg-field disabled:text-mute disabled:border-transparent';
 
+const TYPE = 'font-semibold tracking-[0.04em]';
+
 const VARIANT: Record<Variant, string> = {
-  primary: `bg-accent-strong text-white hover:opacity-90 ${DISABLED}`,
-  outline: `border border-line bg-surface text-ink hover:border-ink/40 ${DISABLED}`,
+  primary: `bg-ink text-white hover:bg-ink/85 ${DISABLED}`,
+  outline: `border border-ink/20 bg-transparent text-ink hover:border-ink ${DISABLED}`,
   ghost: 'text-sub hover:bg-ink/[0.05] hover:text-ink',
 };
 
 const SIZE: Record<Size, string> = {
-  md: 'h-11 px-5 text-[15px] rounded-[10px]',
-  sm: 'h-9 px-3.5 text-[13px] rounded-[10px]',
+  md: `h-[52px] px-10 text-[14px] ${TYPE}`,
+  sm: `h-9 px-4 text-[13px] ${TYPE}`,
 };
 
 export function Button({
@@ -48,9 +49,9 @@ export function Button({
     <button
       {...rest}
       className={cn(
-        'inline-flex shrink-0 items-center justify-center gap-2 font-semibold transition-all',
+        'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap transition-colors',
         'active:scale-[0.99] disabled:active:scale-100 disabled:cursor-not-allowed',
-        'focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-accent/40',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2',
         VARIANT[variant],
         SIZE[size],
         fullWidth && 'w-full',

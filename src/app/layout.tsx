@@ -12,10 +12,10 @@ export const metadata: Metadata = {
   },
   // 홈 상단 문장과 같은 말을 한다 — 검색 결과와 첫 화면이 다른 약속을 하지 않게.
   description:
-    'Pick the products you want to try. The brand packs the samples and ships them to you from Korea.',
+    'Korean beauty, sourced for the way you sell. Samples at wholesale price from a single unit — five SKUs ship free.',
 };
 
-export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#FAFAF9' };
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#FFFFFF' };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

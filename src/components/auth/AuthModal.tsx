@@ -125,7 +125,7 @@ export function AuthModalMount() {
     <Modal open onClose={closeAuth} labelledBy="auth-modal-title" size={step === 'business' ? 'lg' : 'sm'}>
       <h2
         id="auth-modal-title"
-        className="mb-1 pr-8 font-display text-[20px] font-bold tracking-[-0.02em] text-ink"
+        className="mb-1 pr-8 font-display text-[22px] font-semibold tracking-[-0.01em] text-ink"
       >
         {title}
       </h2>
@@ -281,7 +281,7 @@ function BackToEmail({ onClick }: { onClick: () => void }) {
 
 function Divider() {
   return (
-    <div className="my-5 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.18em] text-mute">
+    <div className="my-5 flex items-center gap-3 text-[13px] font-semibold text-ink">
       <span className="h-px flex-1 bg-line" />
       or
       <span className="h-px flex-1 bg-line" />
@@ -304,7 +304,7 @@ function SocialRow({ onGoogle }: { onGoogle: () => void }) {
     <button
       type="button"
       onClick={onGoogle}
-      className="flex h-11 w-full items-center justify-center gap-2.5 rounded-[10px] border border-line bg-surface text-[15px] font-semibold text-ink transition-all hover:border-ink/40 active:scale-[0.99]"
+      className="flex h-11 w-full items-center justify-center gap-2.5 rounded-none border border-line bg-surface text-[15px] font-semibold text-ink transition-all hover:border-ink/40 active:scale-[0.99]"
     >
       <GoogleIcon />
       Continue with Google

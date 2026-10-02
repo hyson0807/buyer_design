@@ -139,7 +139,7 @@ export default function ProfilePage() {
       </header>
 
       <form
-        className="mt-6 overflow-hidden rounded-xl2 border border-line bg-surface sm:mt-8"
+        className="mt-6 overflow-hidden rounded-none border border-line bg-surface sm:mt-8"
         onSubmit={(e) => {
           e.preventDefault();
           save();
@@ -334,7 +334,7 @@ function Shell({ children }: { children?: React.ReactNode }) {
     <div className="mx-auto max-w-[760px] px-6 pb-4 pt-8 md:px-10 md:pt-14">
       {/* ⚠️ 여기에 "My requests" 링크를 두지 않는다 — 같은 링크가 고정 헤더에 늘 떠
              있어서, 제목 옆에 또 두면 화면에 같은 목적지가 두 개 보인다. */}
-      <h1 className="font-display text-[26px] font-semibold tracking-[-0.03em] sm:text-[32px]">
+      <h1 className="font-display text-[28px] font-semibold tracking-[-0.01em] sm:text-[36px]">
         Profile
       </h1>
       {children}

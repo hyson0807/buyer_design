@@ -1,5 +1,6 @@
 import { encodeBrandTags } from '@/lib/brand-tags';
 import type { CategoryKey } from '@/lib/categories';
+import type { NeedKey } from '@/lib/concierge';
 import type { BuyerBrand, ProductListItem } from '@/lib/types';
 
 /**
@@ -87,6 +88,39 @@ const SEEDS: Seed[] = [
 
 const now = '2026-09-01T00:00:00.000Z';
 
+/**
+ * 태그·카테고리 → 고객 니즈. 컨시어지는 카테고리가 아니라 니즈로 묻기 때문에
+ * ("스킨케어"가 아니라 "수분·안티에이징") 브랜드도 같은 축으로 번역해 둔다.
+ * @PORT(schema): 실서버에서는 브랜드 입점 폼에서 직접 고르게 하는 편이 정확하다.
+ */
+const NEED_TAGS: Record<NeedKey, RegExp> = {
+  hydration: /hydration|marine|jeju|sheet mask|camellia/i,
+  antiaging: /anti-aging|peptide|ginseng|luxury|clinical/i,
+  sensitive: /sensitive|fragrance free|barrier|soothing|gentle|minimal|ceramide|fermented/i,
+  acne: /acne|oily|actives/i,
+  sun: /spf|reef/i,
+  brightening: /brightening|green tea|antioxidant/i,
+  clean: /vegan|clean|sustainable|cruelty|zero waste|refill/i,
+  makeup: /colour|lip|editorial/i,
+  hair: /scalp|silicone free/i,
+  body: /body|dry climate/i,
+};
+const NEED_CATEGORY: Partial<Record<CategoryKey, NeedKey>> = {
+  suncare: 'sun',
+  makeup: 'makeup',
+  haircare: 'hair',
+  body: 'body',
+  mask: 'hydration',
+};
+
+function deriveNeeds(s: Seed): NeedKey[] {
+  const text = `${s.tags.join(' ')} ${s.description}`;
+  const out = new Set<NeedKey>();
+  (Object.keys(NEED_TAGS) as NeedKey[]).forEach((k) => NEED_TAGS[k].test(text) && out.add(k));
+  s.categories.forEach((c) => NEED_CATEGORY[c] && out.add(NEED_CATEGORY[c]!));
+  return Array.from(out);
+}
+
 /** 시드를 전체 DTO 로 확장. 서버 필드는 전부 서버가 주는 모양 그대로 채운다. */
 export const MOCK_BRANDS: BuyerBrand[] = SEEDS.map((s, i) => ({
   id: `brand_${s.slug}`,
@@ -113,6 +147,13 @@ export const MOCK_BRANDS: BuyerBrand[] = SEEDS.map((s, i) => ({
   certifications: s.certs,
   exportMarkets: s.markets,
   yearFounded: s.founded,
+  skinNeeds: deriveNeeds(s),
+  // 2018 년 이전 창업 + 수출국 넷 이상이면 "이미 알려진" 브랜드로 본다.
+  tier: s.founded <= 2018 && s.markets.length >= 4 ? 'established' : 'emerging',
+  // 수출국이 적을수록 새 시장에 독점을 내줄 여지가 크다.
+  exclusiveOpen: s.markets.length <= 3,
+  // 소매가의 50 / 52.5 / 55% — auto-reply 의 "45–50% off retail" 과 같은 범위다.
+  wholesaleRatio: 0.5 + (i % 3) * 0.025,
 }));
 
 /**
@@ -185,6 +226,27 @@ export function getProducts(brandId: string): ProductListItem[] {
 export function getProductsByIds(brandId: string, ids: string[]): ProductListItem[] {
   const all = getProducts(brandId);
   return ids.map((id) => all.find((p) => p.id === id)).filter((p): p is ProductListItem => !!p);
+}
+
+/**
+ * 도매가(= 샘플가). 센트 정수.
+ * @PORT(schema): 실서버의 ProductListItem 에는 도매가 필드가 없다 — 바이어 전용 가격표가
+ *                생기면 그 값으로 바꾼다. 화면은 이 함수만 거친다.
+ */
+export function wholesaleCents(product: ProductListItem): number {
+  const brand = MOCK_BRANDS.find((b) => b.name === product.brand);
+  return Math.round((product.customerPriceUsd * (brand?.wholesaleRatio ?? 0.5)) / 10) * 10;
+}
+
+/** 이 브랜드에서 가장 싼 샘플(도매가). 브랜드 카드의 "Samples from" 에 쓴다. */
+export function sampleFromCents(brandId: string): number | null {
+  const prices = getProducts(brandId).map(wholesaleCents);
+  return prices.length ? Math.min(...prices) : null;
+}
+
+/** 홈 진열대 — 브랜드마다 대표 제품 하나씩. */
+export function getFeaturedProducts(count = 8): { product: ProductListItem; brand: BuyerBrand }[] {
+  return MOCK_BRANDS.slice(0, count).map((brand) => ({ product: getProducts(brand.id)[0], brand }));
 }
 
 /** 요청 폼에서 아무것도 안 고른 사용자를 위한 원클릭 채움. */

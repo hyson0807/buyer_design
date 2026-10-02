@@ -88,7 +88,7 @@ export function ChatThread({
       ⚠️ 12rem 은 위쪽 고정 요소(헤더 64 + 페이지 상단 여백 + "All requests" 줄)의
          합이다. 페이지 상단 여백을 바꾸면 여기도 같이 본다.
     */
-    <div className="flex h-[calc(100dvh-12rem)] min-h-[420px] flex-col rounded-xl2 border border-line bg-surface lg:h-[calc(100dvh-16rem)] lg:min-h-[520px]">
+    <div className="flex h-[calc(100dvh-12rem)] min-h-[420px] flex-col rounded-none border border-line bg-surface lg:h-[calc(100dvh-16rem)] lg:min-h-[520px]">
       <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
         {thread.messages.map((m) => (
           <Bubble key={m.id} message={m} brand={brand} />
@@ -125,7 +125,7 @@ export function ChatThread({
           onClick={send}
           disabled={!draft.trim()}
           aria-label="Send message"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-accent-strong text-white transition-all hover:opacity-90 active:scale-[0.99] disabled:bg-field disabled:text-mute disabled:active:scale-100"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-none bg-accent-strong text-white transition-all hover:opacity-90 active:scale-[0.99] disabled:bg-field disabled:text-mute disabled:active:scale-100"
         >
           <Send className="h-4 w-4" strokeWidth={2.25} />
         </button>
@@ -166,7 +166,7 @@ function Bubble({ message, brand }: { message: ChatMessage; brand: BuyerBrand })
       <div className={cn('flex min-w-0 max-w-[86%] items-end gap-2 sm:max-w-[80%]', mine && 'flex-row-reverse')}>
         <div
           className={cn(
-            'min-w-0 whitespace-pre-line break-words rounded-xl2 px-3.5 py-2.5 text-[14px] leading-relaxed sm:px-4 sm:py-3',
+            'min-w-0 whitespace-pre-line break-words rounded-none px-3.5 py-2.5 text-[14px] leading-relaxed sm:px-4 sm:py-3',
             mine ? 'bg-ink text-white' : 'bg-field text-ink',
           )}
         >
